@@ -101,7 +101,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 .initMiceMids <- function(jaspResults) {
   if(!is.null(jaspResults[["MiceMids"]])) return()
 
-  miceMids <- createJaspState()
+  miceMids <- jaspBase::createJaspState()
   miceMids$dependOn(options = c(
     "imputationTargets",
     "imputationMethods",
@@ -163,7 +163,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
 .makeMethodVector <- function(dataset, options) {
 
-  method <- mice::make.method(dataset, defaultMethod = "")
+  method <- mice::make.method(dataset, defaultMethod = rep("", 4))
 
   method[options$imputationTargets] <- options$imputationMethods
 
@@ -192,7 +192,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
 .processPassive <- function(dataset, options, methodVector, predictorMatrix) {
 
-  #TODO: passive imputation might run before the other imputation models in the sequence.
+  # TODO: passive imputation might run before the other imputation models in the sequence.
   # it might be wise to let it run after all other imputation models have been run. I now
   # filed an issue on the mice github page.
   encodedMethNames <- names(methodVector)
@@ -204,6 +204,12 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
                        .parseCharacterFormula,
                        encoded = encodedMethNames,
                        decoded = decodedMethNames)
+
+  varsExist <- match(passiveMat[1,], encodedMethNames)
+  if (any(is.na(varsExist))) {
+    stop("The following variables in your passive imputation string do not exist in the data:\n",
+         paste(passiveMat[1, is.na(varsExist)], collapse = ", "))
+  }
 
   matchMethod <- sapply(passiveMat[1,], grep, x = encodedMethNames)
   methodVector[matchMethod] <- paste0("~I(", passiveMat[2,], ")")
@@ -236,6 +242,11 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
     fullModelVars <- modelsMat[1,]
 
+    if (any(!fullModelVars %in% encodedMethNames)) {
+      stop("The following variables in your full model do not exist in the data:\n",
+           paste(fullModelVars[!fullModelVars %in% encodedMethNames], collapse = ", "))
+    }
+
     for (i in seq_along(fullModelVars)) {
       y <- modelsMat[1, i]
       # check whether user wants to add to the full model or subtract from it (or both)
@@ -255,6 +266,10 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
     if (!is.null(fullModelVars) && any(fullModelVars %in% nullModelVars)) {
       stop("You cannot specify imputation models starting from the full and the empty model simultaneously.")
+    }
+    if (any(!nullModelVars %in% encodedMethNames)) {
+      stop("The following variables in your null model do not exist in the data:\n",
+           paste(nullModelVars[!nullModelVars %in% encodedMethNames], collapse = ", "))
     }
 
     for (i in seq_along(nullModelVars)) {
@@ -322,7 +337,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
     miceOut <- try(mice::mice.mids(currentMiceMids, maxit = addIter))
   } else {
     impMods <- .processImpModel(dataset, options, predMat)
-    
+
     miceOut <- try(
       with(options,
            mice::mice(
@@ -370,7 +385,7 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
 .createDensityPlot <- function(convergencePlots, miceMids, options) {
 
-  convergencePlots[["DensityPlots"]] <- createJaspContainer("Density Plots")
+  convergencePlots[["DensityPlots"]] <- jaspBase::createJaspContainer("Density Plots")
 
   for(v in options$imputedVariables) {
     densityPlot <- createJaspPlot(title = v, height = 320, width = 480)

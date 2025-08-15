@@ -1,3 +1,13 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
 # Mac DS_Store files
 .DS_Store
 **/.DS_Store
@@ -49,6 +59,14 @@ docs/
 # translation temp files
 po/*~
 
+# OSX files
+*.DS_Store
+Thumbs.db
+
+# RStudio files
+.Rproj.user
+
+_processedLockFile.lock
 # RStudio Connect folder
 rsconnect/
 
