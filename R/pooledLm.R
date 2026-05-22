@@ -65,25 +65,36 @@ pooledLmObject <- function(
 
   obj$singularityCheckValue <- sapply(fits$analyses, function(x) x$qr$qr |> ncol()) |> min()
 
-  ## Do we keep the stuff we can't pool?
   if (include$fits) {
     obj$fits <- fits
   }
+
+  ## Do we keep all M replicates of the stuff we can't pool or just one?
   if (include$model) {
     obj$model <- lapply(fits$analyses, "[[", x = "model")
-  } else {
-    obj$model <- NA
   }
   if (include$qr) {
     obj$qr <- lapply(fits$analyses, "[[", x = "qr")
-  } else {
-    obj$qr <- NA
   }
   if (include$x) {
     obj$x <- lapply(fits$analyses, "[[", x = "x")
-  } else {
-    obj$x <- NA
   }
+
+  # if (include$model) {
+  #   obj$model <- lapply(fits$analyses, "[[", x = "model")
+  # } else {
+  #   obj$model <- NA
+  # }
+  # if (include$qr) {
+  #   obj$qr <- lapply(fits$analyses, "[[", x = "qr")
+  # } else {
+  #   obj$qr <- NA
+  # }
+  # if (include$x) {
+  #   obj$x <- lapply(fits$analyses, "[[", x = "x")
+  # } else {
+  #   obj$x <- NA
+  # }
 
   ## Use the mice pooling routines for the more complicated cases:
   pooled <- list()
@@ -226,6 +237,10 @@ resid.pooledlm <- function(object) object$residuals
 fitted.pooledlm <- function(object) object$fitted.values
 #' @export
 logLik.pooledlm <- function(object) object$pooled$logLik
+#' @export
+# anova.pooledlm <- function(object0, ...) {
+#   object$fitted.values
+# }
 
 ### ------------------------------------------------------------------------------------------------------------------###
 
