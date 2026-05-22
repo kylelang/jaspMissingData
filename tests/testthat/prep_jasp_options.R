@@ -1,7 +1,7 @@
 source(test_path("helper.R"))
 
 inPath <- here::here("..", "data", "jaspMissingData1.jasp")
-outFile <- "mi_options.rds"
+outFile <- "lin_reg_options.rds"
 
 jaspTools::analysisOptions(inPath) |>
   addImputationVariables(

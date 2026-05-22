@@ -1,9 +1,13 @@
 # rm(list = ls(all = TRUE))
 #
+# remotes::install_github("jasp-stats/jaspTools")
+# setupJaspTools()
+# install.packages("here")
+#
 # library(testthat)
-# library(jaspTools)
 # library(mice)
 # library(dplyr)
+# library(jaspTools)
 #
 # setPkgOption("module.dirs", here::here())
 #
