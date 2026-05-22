@@ -41,9 +41,11 @@ makePooledLm <- function(pool, poolingParams) {
 ### ------------------------------------------------------------------------------------------------------------------###
 
 #' @export
-pooledLmObject <- function(fits,
-                           pooling = list(fStat = "d3", llEst = "qBar"),
-                           include = list(fits = TRUE, model = FALSE, qr = FALSE, x = FALSE)) {
+pooledLmObject <- function(
+  fits,
+  pooling = list(fStat = "d3", llEst = "qBar"),
+  include = list(fits = TRUE, model = FALSE, qr = FALSE, x = FALSE)
+) {
   fits <- .checkInputs(fits, pooling)
 
   ## Much of the lm object doesn't change across imputed datasets, so we can keep one of the original fits and replace
@@ -64,10 +66,24 @@ pooledLmObject <- function(fits,
   obj$singularityCheckValue <- sapply(fits$analyses, function(x) x$qr$qr |> ncol()) |> min()
 
   ## Do we keep the stuff we can't pool?
-  if (include$fits) obj$fits <- fits
-  if (include$model) obj$model <- lapply(fits$analyses, "[[", x = "model") else obj$model <- NA
-  if (include$qr) obj$qr <- lapply(fits$analyses, "[[", x = "qr") else obj$qr <- NA
-  if (include$x) obj$x <- lapply(fits$analyses, "[[", x = "x") else obj$x <- NA
+  if (include$fits) {
+    obj$fits <- fits
+  }
+  if (include$model) {
+    obj$model <- lapply(fits$analyses, "[[", x = "model")
+  } else {
+    obj$model <- NA
+  }
+  if (include$qr) {
+    obj$qr <- lapply(fits$analyses, "[[", x = "qr")
+  } else {
+    obj$qr <- NA
+  }
+  if (include$x) {
+    obj$x <- lapply(fits$analyses, "[[", x = "x")
+  } else {
+    obj$x <- NA
+  }
 
   ## Use the mice pooling routines for the more complicated cases:
   pooled <- list()
@@ -75,15 +91,13 @@ pooledLmObject <- function(fits,
   pooled$r2 <- mice::pool.r.squared(fits)
   pooled$r2A <- mice::pool.r.squared(fits, adjusted = TRUE)
 
-  if (obj$rank > 1) { # We can only compute pooled F when we have some predictors
-    obj$fFun <- switch(pooling$fStat,
-      d1 = mice::D1,
-      d2 = mice::D2,
-      d3 = mice::D3
-    )
+  if (obj$rank > 1) {
+    # We can only compute pooled F when we have some predictors
+    obj$fFun <- switch(pooling$fStat, d1 = mice::D1, d2 = mice::D2, d3 = mice::D3)
     pooled$f <- obj$fFun(fits)
     obj$df.residual <- as.numeric(pooled$f$result)[3]
-  } else if (obj$rank == 1) { # We're pooling an intercept-only model
+  } else if (obj$rank == 1) {
+    # We're pooling an intercept-only model
     pooled$f <- NULL
     obj$df.residual <- pooled$coef$pooled$df
   } else {
@@ -124,7 +138,9 @@ pooledLmObject <- function(fits,
 
   if (!mice::is.mira(fits)) {
     fitsAreLm <- sapply(fits, inherits, what = "lm")
-    if (!all(fitsAreLm)) stop("All entries in the 'fits' list must have class 'lm'.")
+    if (!all(fitsAreLm)) {
+      stop("All entries in the 'fits' list must have class 'lm'.")
+    }
 
     ## We want 'fits' to be a mira object
     fits <- mice::as.mira(fits)
@@ -138,7 +154,9 @@ pooledLmObject <- function(fits,
   }
 
   ranks <- sapply(fits$analyses, "[[", x = "rank")
-  if (any(ranks <= 0)) stop("I don't know how to pool models with rank(X) < 1.")
+  if (any(ranks <= 0)) {
+    stop("I don't know how to pool models with rank(X) < 1.")
+  }
 
   fits
 }
@@ -208,10 +226,6 @@ resid.pooledlm <- function(object) object$residuals
 fitted.pooledlm <- function(object) object$fitted.values
 #' @export
 logLik.pooledlm <- function(object) object$pooled$logLik
-#' @export
-# AIC.pooledlm    <- function(object, ...) object$pooled$infoCriteria$aic
-#' @export
-# BIC.pooledlm    <- function(object, ...) object$pooled$infoCriteria$bic
 
 ### ------------------------------------------------------------------------------------------------------------------###
 
@@ -246,7 +260,9 @@ logLik.pooledlm <- function(object) object$pooled$logLik
     stop(paste0("The 'est' argument is currently '", est, "' but it should be either 'qBar' or 'qHat'."))
   }
 
-  if (pool) ll <- mean(ll)
+  if (pool) {
+    ll <- mean(ll)
+  }
 
   attr(ll, "nobs") <- fits$analyses[[1]]$residuals |> length()
   attr(ll, "df") <- fits$analyses[[1]]$rank + 1
