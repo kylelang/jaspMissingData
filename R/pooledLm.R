@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 #' @export
 makePooledLm <- function(pool, poolingParams) {
@@ -38,7 +38,7 @@ makePooledLm <- function(pool, poolingParams) {
   }
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 #' @export
 pooledLmObject <- function(
@@ -140,7 +140,7 @@ pooledLmObject <- function(
   obj
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .checkInputs <- function(fits, pooling) {
   if (!(mice::is.mira(fits) || is.list(fits))) {
@@ -172,7 +172,7 @@ pooledLmObject <- function(
   fits
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 #' @export
 summary.pooledlm <- function(object, ...) {
@@ -218,14 +218,14 @@ summary.pooledlm <- function(object, ...) {
   invisible(out)
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 #' @export
 print.summary.pooledlm <- function(object, allowStarGazing = FALSE, ...) {
   stats:::print.summary.lm(object, signif.stars = allowStarGazing, ...)
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 #' @export
 coef.pooledlm <- function(object) object$coefficients
@@ -237,12 +237,56 @@ resid.pooledlm <- function(object) object$residuals
 fitted.pooledlm <- function(object) object$fitted.values
 #' @export
 logLik.pooledlm <- function(object) object$pooled$logLik
-#' @export
-# anova.pooledlm <- function(object0, ...) {
-#   object$fitted.values
-# }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
+
+#' @export
+anova.pooledlm <- function(object, ...) {
+  objList <- list(object, ...)
+
+  ## Stats for the baseline model
+  df0 <- df.residual(objList[[1]])
+  ms0 <- objList[[1]]$pooled$s2
+  baseRow <- c(
+    "Res.Df" = df0,
+    "RSS" = ms0 * df0,
+    "Df" = NA,
+    "Sum of Sq" = NA,
+    "F" = NA,
+    "Pr(>F)" = NA
+  )
+
+  ## Model comparison stats
+  compRows <- sapply(
+    seq_along(objList)[-1],
+    function(x, fits) .pooledAnovaStats(fits[[x - 1]], fits[[x]]),
+    fits = objList
+  ) |>
+    t()
+
+  ## Full ANOVA table
+  out <- rbind.data.frame(
+    baseRow,
+    compRows[, 1:length(baseRow), drop = FALSE]
+  )
+
+  ## Descriptive model tags
+  fStrings <- list()
+  modNum <- 1
+  for (n in seq_along(objList)) {
+    fStrings[[n]] <- paste0("Model ", n, ": ", f2Char(formula(objList[[n]])))
+  }
+
+  attr(out, "heading") <- c("Pooled Analysis of Variance Table\n", paste(fStrings, collapse = "\n"))
+  attr(out, "row.names") <- as.character(row.names(out))
+  attr(out, "riv") <- compRows[, ncol(compRows)]
+
+  class(out) <- c("pooledLmAnova", "anova", class(out))
+
+  out
+}
+
+### --------------------------------------------------------------------------------------------------------------------
 
 .pooledAsymptoticCov <- function(fits) {
   m <- length(fits)
@@ -264,7 +308,7 @@ logLik.pooledlm <- function(object) object$pooled$logLik
   w + b + (b / m)
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .pooledLogLik <- function(fits, est = "qBar", pool = TRUE) {
   if (est == "qBar") {
@@ -286,7 +330,31 @@ logLik.pooledlm <- function(object) object$pooled$logLik
   ll
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
+
+.pooledAnovaStats <- function(fit0, fit1) {
+  fTest <- fit1$fFun(fit0 = fit0$fits, fit1 = fit1$fits)$result
+
+  dfMod <- fTest[[2]]
+  dfRes <- df.residual(fit1)
+  msRes <- fit1$pooled$s2
+  ssRes <- msRes * dfRes
+  ssMod <- fTest[[1]] * msRes * dfMod
+
+  aov0 <- c(
+    "Res.Df" = dfRes,
+    "RSS" = ssRes,
+    "Df" = dfMod,
+    "Sum of Sq" = ssMod,
+    "F" = fTest[[1]],
+    "Pr(>F)" = fTest[[4]],
+    "RIV" = fTest[[5]]
+  )
+
+  aov0
+}
+
+### --------------------------------------------------------------------------------------------------------------------
 
 ## Pool AIC and BIC via naive averaging or the "Pooled Paramters - Pooled Log-Likelihoods" method proposed in
 ## https://doi.org/10.1007/s41237-025-00281-6
@@ -310,4 +378,4 @@ logLik.pooledlm <- function(object) object$pooled$logLik
 #   list(aic = aic, bic = bic, p = p, n = n, type = type)
 # }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
