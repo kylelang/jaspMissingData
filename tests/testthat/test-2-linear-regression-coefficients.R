@@ -34,7 +34,7 @@ jaspCoefTab <- data.frame(
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-message("\nTesting external consistency between JASP results and R analyses.\n")
+# message("\nTesting external consistency between JASP results and R analyses.\n")
 
 ### --------------------------------------------------------------------------------------------------------------------
 
@@ -88,7 +88,7 @@ test_that("The coefficients covariance matrices are pooled correctly.", {})
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-message("\nTesting internal consistency between JASP Results and JASP State.\n")
+# message("\nTesting internal consistency between JASP Results and JASP State.\n")
 
 ### --------------------------------------------------------------------------------------------------------------------
 

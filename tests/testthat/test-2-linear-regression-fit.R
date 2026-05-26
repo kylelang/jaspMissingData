@@ -29,6 +29,9 @@ options$fChange <- TRUE
 
 ### --------------------------------------------------------------------------------------------------------------------
 
+## Some previous test nukes the environment, so we need to re-export all our private functions
+devtools::load_all()
+
 mira0 <- with(miceMids, lm(tv ~ 1))
 mira1 <- with(miceMids, lm(tv ~ hgt + wgt))
 mira2 <- with(miceMids, lm(tv ~ hgt + wgt + reg))
@@ -55,7 +58,7 @@ jaspAnovaData <- results[["results"]][["ModelContainer"]][["collection"]][["Mode
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-message("\nTesting external consistency between JASP results and R analyses.\n")
+# message("\nTesting external consistency between JASP results and R analyses.\n")
 
 ### --------------------------------------------------------------------------------------------------------------------
 
@@ -128,7 +131,7 @@ test_that("Stats in the model summary table are pooled correctly.", {})
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-message("\nTesting internal consistency between JASP Results and JASP State.\n")
+# message("\nTesting internal consistency between JASP Results and JASP State.\n")
 
 ### --------------------------------------------------------------------------------------------------------------------
 
