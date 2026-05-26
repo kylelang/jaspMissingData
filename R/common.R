@@ -100,6 +100,5 @@
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-#' @export
 ## Convert a formula object to a printable character string
-f2Char <- function(f) enquote(f)[2] |> as.character()
+# f2Char <- function(f) enquote(f)[2] |> as.character()

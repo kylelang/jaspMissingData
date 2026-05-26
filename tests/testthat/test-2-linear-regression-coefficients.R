@@ -1,6 +1,7 @@
 # rm(list = ls(all = TRUE))
 #
-# remotes::install_github("jasp-stats/jaspTools")
+# remotes::install_github("kylelang/jaspRegression@missingData")
+#
 # setupJaspTools()
 # install.packages("here")
 #
@@ -31,10 +32,14 @@ jaspCoefTab <- data.frame(
   p = sapply(coefTab, "[[", x = "p")
 )
 
+### --------------------------------------------------------------------------------------------------------------------
+
 message("\nTesting external consistency between JASP results and R analyses.\n")
 
+### --------------------------------------------------------------------------------------------------------------------
+
 test_that("Linear regression parameters pooled correctly for an intercept-only model.", {
-  mipoCoef <- with(miceMids, lm(age ~ 1)) |>
+  mipoCoef <- with(miceMids, lm(tv ~ 1)) |>
     mice::pool() |>
     summary() |>
     dplyr::select(-term, -df) |>
@@ -45,8 +50,10 @@ test_that("Linear regression parameters pooled correctly for an intercept-only m
   expect_equal(head(jaspCoefTab, 1), mipoCoef)
 })
 
+### --------------------------------------------------------------------------------------------------------------------
+
 test_that("Linear regression parameters pool correctly with only numeric predictors.", {
-  mipoCoef <- with(miceMids, lm(age ~ hgt + wgt)) |>
+  mipoCoef <- with(miceMids, lm(tv ~ hgt + wgt)) |>
     mice::pool() |>
     summary() |>
     dplyr::select(-term, -df) |>
@@ -59,8 +66,10 @@ test_that("Linear regression parameters pool correctly with only numeric predict
     expect_equal(mipoCoef)
 })
 
+### --------------------------------------------------------------------------------------------------------------------
+
 test_that("Linear regression parameters pool correctly with numeric and categorical predictors.", {
-  mipoCoef <- with(miceMids, lm(age ~ hgt + wgt + reg)) |>
+  mipoCoef <- with(miceMids, lm(tv ~ hgt + wgt + reg)) |>
     mice::pool() |>
     summary() |>
     dplyr::select(-term, -df) |>
@@ -73,43 +82,53 @@ test_that("Linear regression parameters pool correctly with numeric and categori
     expect_equal(mipoCoef)
 })
 
+### --------------------------------------------------------------------------------------------------------------------
+
 test_that("The coefficients covariance matrices are pooled correctly.", {})
 
+### --------------------------------------------------------------------------------------------------------------------
+
 message("\nTesting internal consistency between JASP Results and JASP State.\n")
+
+### --------------------------------------------------------------------------------------------------------------------
 
 # fmt: skip
 test_that("Coefficients table results match", {
 	table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_coeffTable"]][["data"]]
-	jaspTools::expect_equal_tables(table,
+	jaspTools::expect_equal_tables(
+    table,
 		list(
-      "FALSE", 0.252071517923469,   "M<unicode>", "(Intercept)", 4.14597392666055e-167, 36.3343958318255,   9.15886631016043,
-      "TRUE",  0.241388759426161,   "M<unicode>", "(Intercept)", 1.68937381158325e-134, -30.8245454235753,  -7.4406987796722,
-      "FALSE", 0.00329285540403064, "M<unicode>", "hgt",         1.3510793810701e-141,  "",                 32.1983800724375,   0.106024609822558,
-      "FALSE", 0.0059037839054454,  "M<unicode>", "wgt",         1.0311700726364e-31,   "",                 12.3190515534348,   0.0727290182915203,
-      "TRUE",  0.283844994940581,   "M<unicode>", "(Intercept)", 3.4656015579067e-105,  -26.1715382174594,  -7.42866013292199,
-      "FALSE", 0.00331246049278279, "M<unicode>", "hgt",         6.30628523659042e-140, "",                 32.0630791748417,   0.10620768304363,
-      "FALSE", 0.00596332953292449, "M<unicode>", "wgt",         3.03911320002771e-31,  "",                 12.2307919383193,   0.0729362427768346,
-      "FALSE", 0.196581101837589,   "M<unicode>", "reg (east)",  0.347699326358049,     -0.939683101038365, -0.184723939380284,
-      "FALSE", 0.226961293336746,   "M<unicode>", "reg (north)", 0.294377304534344,     -1.04937734135525,  -0.238168038592265,
-      "FALSE", 0.192056159502992,   "M<unicode>", "reg (south)", 0.85882911542211,      0.177933459213752,  0.0341732168236755,
-      "FALSE", 0.186192907561261,   "M<unicode>", "reg (west)",  0.824114378718915,     0.222340218659345,  0.04139817177999
+      "FALSE", 0.317136961972974,  "M<unicode>", "(Intercept)", 1.35330367518679e-68, 26.8975708497525,  8.53021390374332,
+      "TRUE",  1.12294585537918,   "M<unicode>", "(Intercept)", 0.623439537219199,    0.501333872418568, 0.562970794193624,
+      "FALSE", 0.0143862762569725, "M<unicode>", "hgt",         0.103017056467338,    "",                -1.71107017886869, -0.0246159282882723,
+      "FALSE", 0.0235543976790782, "M<unicode>", "wgt",         2.26827112777922e-14, "",                12.7906300989981,  0.301275587917789,
+      "TRUE",  1.14364457591177,   "M<unicode>", "(Intercept)", 0.835784106152615,    0.209392120408636, 0.239470162744001,
+      "FALSE", 0.0149121191054207, "M<unicode>", "hgt",         0.0752398180676156,   "",                -1.90983633392695, -0.0284797068833786,
+      "FALSE", 0.0241501272576832, "M<unicode>", "wgt",         1.23922439792427e-12, "",                13.0111237547281,  0.314220294442148,
+      "FALSE", 1.00543719969302,   "M<unicode>", "reg (east)",  0.542292613001919,    0.6303635594114,   0.633790971963124,
+      "FALSE", 0.953701784350436,  "M<unicode>", "reg (north)", 0.0134465278143179,   -2.70670672925286, -2.58139103740179,
+      "FALSE", 0.889180258751549,  "M<unicode>", "reg (south)", 0.383197362172974,    0.901355194941502, 0.801467245465137,
+      "FALSE", 0.731908549034349,  "M<unicode>", "reg (west)",  0.228924837688115,    1.22763875396341,  0.898519299151693
     )
   )
 })
 
+### --------------------------------------------------------------------------------------------------------------------
+
 # fmt: skip
 test_that("Coefficients Covariance Matrix table results match", {
 	table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_coeffCovMatrixTable"]][["data"]]
-	jaspTools::expect_equal_tables(table,
+	jaspTools::expect_equal_tables(
+    table,
 		list(
-      "TRUE",  1.08428967118538e-05, "M<unicode>", "hgt",         "",                   "",                    "",                    "",                    -1.83447079756992e-05,
-      "FALSE", "",                   "M<unicode>", "wgt",         "",                   "",                    "",                    "",                    3.48546644021962e-05,
-      "TRUE",  1.09723945162468e-05, "M<unicode>", "hgt",         -4.0104533378228e-05, 2.20079655817134e-05,  -8.22367429248015e-06, -2.76416012468491e-06, -1.86292118150652e-05,
-      "FALSE", "",                   "M<unicode>", "wgt",         5.74441347640765e-05, -0.000100127363250247, 9.71982170588439e-06,  -4.49917245205374e-06, 3.55612991182494e-05,
-      "FALSE", "",                   "M<unicode>", "reg (east)",  0.0386441295996804,   0.0268107429684344,    0.0266264533088814,    0.0266363479001463,    "",
-      "FALSE", "",                   "M<unicode>", "reg (north)", "",                   0.0515114286730887,    0.0269914912993604,    0.0268883951427532,    "",
-      "FALSE", "",                   "M<unicode>", "reg (south)", "",                   "",                    0.0368855684030386,    0.0266489303494129,    "",
-      "FALSE", "",                   "M<unicode>", "reg (west)",  "",                   "",                    "",                    0.0346677988261163,    ""
+      "TRUE",  0.00020696494454193,  "M<unicode>", "hgt",         "",                   "",                   "",                   "",                  -0.000323630371339812,
+      "FALSE", "",                   "M<unicode>", "wgt",         "",                   "",                   "",                   "",                  0.000554809650024162,
+      "TRUE",  0.000222371296214252, "M<unicode>", "hgt",         -0.00654075922958338, -0.00371701880119683, -0.00453491157177295, -0.0016099510620988, -0.000345122815213528,
+      "FALSE", "",                   "M<unicode>", "wgt",         0.0091067673272683,   0.00466488512459495,  0.00637937962480349,  0.00212160674735191, 0.000583228646562292,
+      "FALSE", "",                   "M<unicode>", "reg (east)",  1.01090396252654,     0.743951985474387,    0.773924650974141,    0.561347905525883,   "",
+      "FALSE", "",                   "M<unicode>", "reg (north)", "",                   0.909547093473206,    0.669189476374106,    0.52322635874467,    "",
+      "FALSE", "",                   "M<unicode>", "reg (south)", "",                   "",                   0.790641532553472,    0.523987552453788,   "",
+      "FALSE", "",                   "M<unicode>", "reg (west)",  "",                   "",                   "",                   0.535690124149566,   ""
     )
   )
 })

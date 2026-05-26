@@ -274,7 +274,7 @@ anova.pooledlm <- function(object, ...) {
   fStrings <- list()
   modNum <- 1
   for (n in seq_along(objList)) {
-    fStrings[[n]] <- paste0("Model ", n, ": ", f2Char(formula(objList[[n]])))
+    fStrings[[n]] <- paste0("Model ", n, ": ", deparse(formula(objList[[n]])))
   }
 
   attr(out, "heading") <- c("Pooled Analysis of Variance Table\n", paste(fStrings, collapse = "\n"))
