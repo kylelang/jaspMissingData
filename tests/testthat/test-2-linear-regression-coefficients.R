@@ -34,10 +34,6 @@ jaspCoefTab <- data.frame(
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-# message("\nTesting external consistency between JASP results and R analyses.\n")
-
-### --------------------------------------------------------------------------------------------------------------------
-
 test_that("Linear regression parameters pooled correctly for an intercept-only model.", {
   mipoCoef <- with(miceMids, lm(tv ~ 1)) |>
     mice::pool() |>
@@ -85,10 +81,6 @@ test_that("Linear regression parameters pool correctly with numeric and categori
 ### --------------------------------------------------------------------------------------------------------------------
 
 test_that("The coefficients covariance matrices are pooled correctly.", {})
-
-### --------------------------------------------------------------------------------------------------------------------
-
-# message("\nTesting internal consistency between JASP Results and JASP State.\n")
 
 ### --------------------------------------------------------------------------------------------------------------------
 

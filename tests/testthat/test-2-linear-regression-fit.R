@@ -1,139 +1,99 @@
-# rm(list = ls(all = TRUE))
-#
-# remotes::install_github("jasp-stats/jaspTools")
-#
-# library(testthat)
-# library(jaspTools)
-# library(mice)
-# library(dplyr)
-#
-# setupJaspTools(
-#   pathJaspDesktop = "~/data/software/jasp/desktop/jasp-desktop",
-#   installJaspModules = FALSE,
-#   installJaspCorePkgs = TRUE
-# )
-#
-# setPkgOption("module.dirs", here::here())
-#
-# setwd(here::here())
-# source(test_path("setup.R"))
-# source(here::here("R/pooledLm.R"))
-# source(here::here("R/common.R"))
-
 boys <- readRDS(test_path("fixtures", "boys.rds"))
 miceMids <- readRDS(test_path("fixtures", "mice_mids.rds"))
 options <- readRDS(test_path("fixtures", "lin_reg_options.rds"))
 
+miraList <- list(
+  with(miceMids, lm(tv ~ 1)),
+  with(miceMids, lm(tv ~ hgt + wgt)),
+  with(miceMids, lm(tv ~ hgt + wgt + reg))
+)
+
 options$modelAICBIC <- TRUE
 options$fChange <- TRUE
-
-### --------------------------------------------------------------------------------------------------------------------
 
 ## Some previous test nukes the environment, so we need to re-export all our private functions
 devtools::load_all()
 
-mira0 <- with(miceMids, lm(tv ~ 1))
-mira1 <- with(miceMids, lm(tv ~ hgt + wgt))
-mira2 <- with(miceMids, lm(tv ~ hgt + wgt + reg))
-
-fFun <- switch(options$fStat, d1 = mice::D1, d2 = mice::D2, d3 = mice::D3)
-fOut <- rbind.data.frame(
-  fFun(fit0 = mira0, fit1 = mira1)$result,
-  fFun(fit0 = mira0, fit1 = mira2)$result
-)
-colnames(fOut) <- c("f", "df1", "df2", "p", "riv")
-
-poolingParms <- with(options, list(fStat = fStat, llEst = llEst))
-pooledLm0 <- pooledLmObject(mira0, pooling = poolingParms)
-pooledLm1 <- pooledLmObject(mira1, pooling = poolingParms)
-pooledLm2 <- pooledLmObject(mira2, pooling = poolingParms)
-
-mdAov1 <- anova.pooledlm(pooledLm0, pooledLm1)
-mdAov2 <- anova.pooledlm(pooledLm0, pooledLm2)
-
 ### --------------------------------------------------------------------------------------------------------------------
 
-results <- jaspTools::runAnalysis("MissingDataImputation", boys, options)
-jaspAnovaData <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_anovaTable"]][["data"]]
+options$fStat <- "d1"
+options$llEst <- "qBar"
 
-### --------------------------------------------------------------------------------------------------------------------
+## Test everything
+results <- testFitStats(miraList, boys, options)
 
-# message("\nTesting external consistency between JASP results and R analyses.\n")
+# fmt: skip
+test_that("ANOVA table results match", {
+	table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_anovaTable"]][["data"]]
+	jaspTools::expect_equal_tables(table,
+		list(
+      "TRUE",  542.025163199051, 11536.6226392655, 23073.2452785309, "Regression",     2,                "M<unicode>", 1.19164542292206e-21,
+      "FALSE", 21.2842934655947, 543.858206039319,                   "Residual",       25.5520911191366, "M<unicode>",
+      "FALSE", 23617.1034845703,                                     "Total",          27.5520911191366, "M<unicode>",
+      "TRUE",  188.141580750973, 3804.70649322502, 22828.2389593501, "Regression",     6,                "M<unicode>", 5.88099608737267e-56,
+      "FALSE", 20.2225710979912, 2257.05294597123,                   "Residual",       111.610582800494, "M<unicode>",
+      "FALSE", 25085.2919053214,                                     "Total",          117.610582800494, "M<unicode>"
+    )
+  )
+})
 
-### --------------------------------------------------------------------------------------------------------------------
-
-mdF <- c(mdAov1[2, "F"], mdAov2[2, "F"])
-jF <- sapply(jaspAnovaData, "[[", x = "F") |> unlist()
-
-test_that("F-Stats in the ANOVA table match the R versions.", {
-  expect_equal(jF, fOut$f)
-  expect_equal(jF, mdF)
-  expect_equal(fOut$f, mdF)
+# fmt: skip
+test_that("Model Summary - tv table results match", {
+  table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_summaryTable"]][["data"]]
+  jaspTools::expect_equal_tables(table,
+    list(
+      5264.07217032725, 5273.3069762832,  "",               0,                 0,                 "",                 8.20888313504352, 0,                 0, 201.429231532675, "M<unicode>", "",
+      4389.35883672888, 4407.82844864078, 542.025163199051, 0.831476298586239, 0.691352835110672, 0.691352835110672,  4.61349037775031, 0.690524102452899, 2, 25.5520911191366, "M<unicode>", 1.19164542292206e-21,
+      4356.67603861978, 4393.61526244358, 6.49794128714925, 0.841627248054181, 0.708336424667255, 0.0169835895565824, 4.49695131149885, 0.705974382467772, 4, 68.4136454937619, "M<unicode>", 0.000171321455737634
+    )
+  )
 })
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-tmp <- c(mdAov1[2, "Sum of Sq"], mdAov1$RSS[2])
-mdSS <- c(tmp, sum(tmp))
-tmp <- c(mdAov2[2, "Sum of Sq"], mdAov2$RSS[2])
-mdSS <- c(mdSS, tmp, sum(tmp))
+devtools::load_all()
 
-test_that(
-  "Sums of squares in the JASP ANOVA table match the R versions.",
-  sapply(jaspAnovaData, "[[", x = "SS") |>
-    unlist() |>
-    expect_equal(mdSS)
-)
+options$fStat <- "d2"
+options$llEst <- "qHat"
 
-### --------------------------------------------------------------------------------------------------------------------
+## Don't test R^2: it doesn't change based on fStat or llEst
+results <- testFitStats(miraList, boys, options, what = c("f", "ic"))
 
-tmp <- c(mdAov1[2, "Df"], mdAov1$Res.Df[2])
-mdDF <- c(tmp, sum(tmp))
-tmp <- c(mdAov2[2, "Df"], mdAov2$Res.Df[2])
-mdDF <- c(mdDF, tmp, sum(tmp))
+# fmt: skip
+test_that("ANOVA table results match", {
+	table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_anovaTable"]][["data"]]
+	jaspTools::expect_equal_tables(table,
+		list(
+      "TRUE",  342.244248655022, 7284.42702528546, 14568.8540505709, "Regression",     2,                "M<unicode>", 3.56730541772611e-08,
+      "FALSE", 21.2842934655947, 161.820101589705,                   "Residual",       7.60279413790647, "M<unicode>",
+      "FALSE", 14730.6741521606,                                     "Total",          9.60279413790647, "M<unicode>",
+      "TRUE",  119.421264388623, 2415.00500971095, 14490.0300582657, "Regression",     6,                "M<unicode>", 0.000263186551573597,
+      "FALSE", 20.2225710979912, 76.8825801434865,                   "Residual",       3.80182024189414, "M<unicode>",
+      "FALSE", 14566.9126384092,                                     "Total",          9.80182024189414, "M<unicode>"
+    )
+  )
+})
 
-tmp <- with(fOut, rbind(df1, df2))
-rDF <- rbind(tmp, colSums(tmp)) |> as.numeric()
-
-jDF <- sapply(jaspAnovaData, "[[", x = "df") |> unlist()
-
-test_that("Degrees of freedom in the JASP ANOVA table match the R versions.", {
-  expect_equal(jDF, mdDF)
-  expect_equal(jDF, rDF)
-  expect_equal(rDF, mdDF)
+# fmt: skip
+test_that("Model Summary - tv table results match", {
+	table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_summaryTable"]][["data"]]
+	jaspTools::expect_equal_tables(table,
+		list(
+      5264.07217032725, 5273.3069762832,  "",               0,                 0,                 "",                 8.20888313504352, 0,                 0, 201.429231532675, "M<unicode>", "",
+      4388.66323124355, 4407.13284315545, 342.244248655022, 0.831476298586239, 0.691352835110672, 0.691352835110672,  4.61349037775031, 0.690524102452899, 2, 7.60279413790647, "M<unicode>", 3.56730541772611e-08,
+      4354.3338058514,  4391.27302967519, 10.1641040943534, 0.841627248054181, 0.708336424667255, 0.0169835895565824, 4.49695131149885, 0.705974382467772, 4, 678.259294458718, "M<unicode>", 5.38195908886006e-08
+    )
+  )
 })
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-test_that(
-  "Mean squares in the JASP ANOVA table match the R versions.",
-  sapply(jaspAnovaData, "[[", x = "MS") |>
-    unlist() |>
-    expect_equal({
-      mdSS / mdDF
-    }[-c(3, 6)])
-)
+devtools::load_all()
 
-### --------------------------------------------------------------------------------------------------------------------
+options$fStat <- "d3"
 
-mdP <- c(mdAov1[2, "Pr(>F)"], mdAov2[2, "Pr(>F)"])
-jP <- sapply(jaspAnovaData, "[[", x = "p") |> unlist()
-
-test_that("P-values in the JASP ANOVA table match the R versions.", {
-  expect_equal(jP, mdP)
-  expect_equal(jP, fOut$p)
-  expect_equal(fOut$p, mdP)
-})
-
-### --------------------------------------------------------------------------------------------------------------------
-
-test_that("Stats in the model summary table are pooled correctly.", {})
-
-### --------------------------------------------------------------------------------------------------------------------
-
-# message("\nTesting internal consistency between JASP Results and JASP State.\n")
-
-### --------------------------------------------------------------------------------------------------------------------
+## Don't test AIC/BIC: they only depend on llEst, not fStat
+results <- testFitStats(miraList, boys, options, what = "f")
 
 # fmt: skip
 test_that("ANOVA table results match", {
@@ -151,17 +111,14 @@ test_that("ANOVA table results match", {
   )
 })
 
-### --------------------------------------------------------------------------------------------------------------------
-
 # fmt: skip
 test_that("Model Summary - tv table results match", {
-  table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_summaryTable"]][["data"]]
-  jaspTools::expect_equal_tables(
-    table,
-    list(
-      5209.65301610799, 5218.88782206394, "",               0,                 0,                 "",                 8.20888313504352, 0,                 0, 201.429231532675, "M<unicode>", "",
-      4195.25372919822, 4213.72334111012, 288.726739159353, 0.831476298586239, 0.691352835110672, 0.691352835110672,  4.61349037775031, 0.690524102452899, 2, 27.7675064764428, "M<unicode>", 2.62000824959559e-19,
-      4149.7041616798,  4186.6433855036,  6.28797056778446, 0.841627248054181, 0.708336424667255, 0.0169835895565824, 4.49695131149885, 0.705974382467772, 4, 74.1048688479238, "M<unicode>", 0.000206126409128476
+	table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_summaryTable"]][["data"]]
+	jaspTools::expect_equal_tables(table,
+		list(
+      5264.07217032725, 5273.3069762832,  "",               0,                 0,                 "",                 8.20888313504352, 0,                 0, 201.429231532675, "M<unicode>", "",
+      4388.66323124355, 4407.13284315545, 288.726739159353, 0.831476298586239, 0.691352835110672, 0.691352835110672,  4.61349037775031, 0.690524102452899, 2, 27.7675064764428, "M<unicode>", 2.62000824959559e-19,
+      4354.3338058514,  4391.27302967519, 6.28797056778446, 0.841627248054181, 0.708336424667255, 0.0169835895565824, 4.49695131149885, 0.705974382467772, 4, 74.1048688479238, "M<unicode>", 0.000206126409128476
     )
   )
 })

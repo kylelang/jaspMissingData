@@ -17,7 +17,6 @@
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-#' @export
 makePooledLm <- function(pool, poolingParams) {
   function(formula, data, weights, ...) {
     ## TIL that formula objects are closures that capture the environment in which they are created. So, we need to create
@@ -34,14 +33,13 @@ makePooledLm <- function(pool, poolingParams) {
       return(fits)
     }
 
-    pooledLmObject(fits, pooling = poolingParams)
+    new_pooledLm(fits, pooling = poolingParams)
   }
 }
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-#' @export
-pooledLmObject <- function(
+new_pooledLm <- function(
   fits,
   pooling = list(fStat = "d3", llEst = "qBar"),
   include = list(fits = TRUE, model = FALSE, qr = FALSE, x = FALSE)
@@ -51,7 +49,7 @@ pooledLmObject <- function(
   ## Much of the lm object doesn't change across imputed datasets, so we can keep one of the original fits and replace
   ## the appropriate parts with MI-based estimates.
   obj <- fits$analyses[[1]]
-  class(obj) <- c("pooledlm", class(obj))
+  class(obj) <- c("pooledLm", class(obj))
 
   ## We need to extract these things before casting the 'fits' as a mira object:
   residuals <- sapply(fits$analyses, resid)
@@ -79,22 +77,6 @@ pooledLmObject <- function(
   if (include$x) {
     obj$x <- lapply(fits$analyses, "[[", x = "x")
   }
-
-  # if (include$model) {
-  #   obj$model <- lapply(fits$analyses, "[[", x = "model")
-  # } else {
-  #   obj$model <- NA
-  # }
-  # if (include$qr) {
-  #   obj$qr <- lapply(fits$analyses, "[[", x = "qr")
-  # } else {
-  #   obj$qr <- NA
-  # }
-  # if (include$x) {
-  #   obj$x <- lapply(fits$analyses, "[[", x = "x")
-  # } else {
-  #   obj$x <- NA
-  # }
 
   ## Use the mice pooling routines for the more complicated cases:
   pooled <- list()
@@ -174,9 +156,10 @@ pooledLmObject <- function(
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-#' @export
-summary.pooledlm <- function(object, ...) {
-  out <- structure(list(), class = c("summary.pooledlm", "summary.lm")) # Maybe we can just use the print method for summary.lm ?
+#' @exportS3Method
+summary.pooledLm <- function(object, ...) {
+  ## Maybe we can just use the print method for summary.lm?
+  out <- structure(list(), class = c("pooledLmSummary", "summary.lm"))
 
   ## We can pull a few things directly from the input object
   out$call <- object$call
@@ -220,28 +203,26 @@ summary.pooledlm <- function(object, ...) {
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-#' @export
-print.summary.pooledlm <- function(object, allowStarGazing = FALSE, ...) {
-  stats:::print.summary.lm(object, signif.stars = allowStarGazing, ...)
-}
+# #' @exportS3Method
+# print.pooledLmSummary <- function(object, ...) NextMethod()
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-#' @export
-coef.pooledlm <- function(object) object$coefficients
-#' @export
-vcov.pooledlm <- function(object) object$pooled$vcov
-#' @export
-resid.pooledlm <- function(object) object$residuals
-#' @export
-fitted.pooledlm <- function(object) object$fitted.values
-#' @export
-logLik.pooledlm <- function(object) object$pooled$logLik
+#' @exportS3Method
+coef.pooledLm <- function(object) object$coefficients
+#' @exportS3Method
+vcov.pooledLm <- function(object) object$pooled$vcov
+#' @exportS3Method
+resid.pooledLm <- function(object) object$residuals
+#' @exportS3Method
+fitted.pooledLm <- function(object) object$fitted.values
+#' @exportS3Method
+logLik.pooledLm <- function(object) object$pooled$logLik
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-#' @export
-anova.pooledlm <- function(object, ...) {
+#' @exportS3Method
+anova.pooledLm <- function(object, ...) {
   objList <- list(object, ...)
 
   ## Stats for the baseline model

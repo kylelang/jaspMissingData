@@ -1,4 +1,4 @@
-# here::here("tests", "testthat", "helper.R") |> source()
+# here::here("tests", "testthat", "helpers.R") |> source()
 #
 # inPath <- here::here("..", "data", "jaspMissingData00.jasp")
 # outFile <- "mi_options.rds"
