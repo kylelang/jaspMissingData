@@ -1,7 +1,7 @@
 # here::here("tests", "testthat", "helpers.R") |> source()
 #
-# inPath <- here::here("..", "data", "jaspMissingData00.jasp")
-# outFile <- "mi_options.rds"
+# inPath <- here::here("..", "data", "jaspMissingDataReg.jasp")
+# outFile <- "lin_reg_options.rds"
 #
 # boys <- readRDS(here::here("tests", "testthat", "fixtures", "boys.rds"))
 #
