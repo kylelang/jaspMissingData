@@ -6,16 +6,8 @@ addImputationVariables <- function(options, variables, methods, types) {
     impVars[[i]] <- list(method = methods[i], variable = variables[i])
   }
 
-  if (interactive()) {
-    options$imputationVariables <- list(
-      optionKey = "variable",
-      types = types,
-      value = impVars
-    )
-  } else {
-    options$imputationVariables <- impVars
-    options$imputationVariables.types <- types
-  }
+  options$imputationVariables <- impVars
+  options$imputationVariables.types <- types
 
   options
 }

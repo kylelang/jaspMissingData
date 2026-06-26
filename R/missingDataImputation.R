@@ -81,17 +81,10 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 ### Init Functions -----------------------------------------------------------------------------------------------------
 
 .processImputationOptions <- function(options) {
-  # Calculate any options common to multiple parts of the analysis
   options$imputedVariables <- ""
 
-  tmp <- options$imputationVariables
-  if (interactive()) {
-    options$imputationTargets <- sapply(tmp$value, "[[", x = "variable")
-    options$imputationMethods <- sapply(tmp$value, "[[", x = "method")
-  } else {
-    options$imputationTargets <- sapply(tmp, "[[", x = "variable")
-    options$imputationMethods <- sapply(tmp, "[[", x = "method")
-  }
+  options$imputationTargets <- sapply(options$imputationVariables, "[[", x = "variable")
+  options$imputationMethods <- sapply(options$imputationVariables, "[[", x = "method")
 
   names(options$imputationMethods) <- options$imputationTargets
 

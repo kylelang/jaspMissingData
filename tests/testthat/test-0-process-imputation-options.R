@@ -1,6 +1,6 @@
 test_that(".processImputationOptions returns expected output", {
   options <- addImputationVariables(
-    options = jaspTools::analysisOptions("MissingDataImputation"),
+    options = readRDS(test_path("fixtures", "mi_options.rds")),
     variables = c("hgt", "reg", "bmi"),
     methods = c("pmm", "logreg", "pmm"),
     types = c("scale", "nominal", "scale")

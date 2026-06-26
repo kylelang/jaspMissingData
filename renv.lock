@@ -5303,6 +5303,7 @@
         "systemfonts",
         "withr"
       ],
+      "Remotes": "jasp-stats/jaspGraphs",
       "RoxygenNote": "7.3.3",
       "Roxygen": "list(markdown = TRUE)",
       "Encoding": "UTF-8",
@@ -5316,12 +5317,14 @@
       ],
       "Config/testthat/edition": "3",
       "RemoteType": "github",
-      "Remotes": "jasp-stats/jaspGraphs",
       "RemoteHost": "api.github.com",
-      "RemoteUsername": "jasp-stats",
       "RemoteRepo": "jaspBase",
-      "RemoteRef": "master",
-      "RemoteSha": "209d1787d5c9400601df960535b261029a350b12"
+      "RemoteUsername": "jasp-stats",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "209d1787d5c9400601df960535b261029a350b12",
+      "Depends": [
+        "R (>= 4.1.0)"
+      ]
     },
     "jaspDescriptives": {
       "Package": "jaspDescriptives",
@@ -5374,7 +5377,6 @@
       "Description": "Graph making functions and wrappers for JASP.",
       "License": "GPL",
       "Encoding": "UTF-8",
-      "LazyData": "true",
       "Imports": [
         "cli",
         "ggplot2 (>= 3.0.0)",
@@ -5396,10 +5398,14 @@
       "Config/roxygen2/version": "8.0.0",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteUsername": "jasp-stats",
       "RemoteRepo": "jaspGraphs",
-      "RemoteRef": "master",
-      "RemoteSha": "cac753920e984d3628cace64538c00acd3622a58"
+      "RemoteUsername": "jasp-stats",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "cac753920e984d3628cace64538c00acd3622a58",
+      "NeedsCompilation": "no",
+      "Depends": [
+        "R (>= 4.1.0)"
+      ]
     },
     "jaspRegression": {
       "Package": "jaspRegression",
