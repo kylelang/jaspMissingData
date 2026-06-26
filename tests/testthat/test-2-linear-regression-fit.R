@@ -22,6 +22,9 @@ options$llEst <- "qBar"
 ## Test everything
 results <- testFitStats(miraList, boys, options)
 
+fD1 <- getJaspFStats(results)
+icQBar <- getJaspInfoCriteria(results)
+
 # fmt: skip
 test_that("ANOVA table results match", {
 	table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_anovaTable"]][["data"]]
@@ -59,6 +62,18 @@ options$llEst <- "qHat"
 ## Don't test R^2: it doesn't change based on fStat or llEst
 results <- testFitStats(miraList, boys, options, what = c("f", "ic"))
 
+fD2 <- getJaspFStats(results)
+icQHat <- getJaspInfoCriteria(results)
+
+test_that(
+  "The value of 'llEst' affects the information criteria.",
+  expect_equal(
+    unlist(icQBar) == unlist(icQHat),
+    c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE),
+    ignore_attr = TRUE
+  )
+)
+
 # fmt: skip
 test_that("ANOVA table results match", {
 	table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_anovaTable"]][["data"]]
@@ -94,6 +109,14 @@ options$fStat <- "d3"
 
 ## Don't test AIC/BIC: they only depend on llEst, not fStat
 results <- testFitStats(miraList, boys, options, what = "f")
+
+fD3 <- getJaspFStats(results)
+
+test_that("The value of 'fStat' affects the F statistics.", {
+  expect_disjoint(fD1, fD2)
+  expect_disjoint(fD1, fD3)
+  expect_disjoint(fD2, fD3)
+})
 
 # fmt: skip
 test_that("ANOVA table results match", {

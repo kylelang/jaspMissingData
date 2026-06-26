@@ -149,3 +149,22 @@ testFitStats <- function(miraList, boys, options, what = c("r2", "f", "ic"), ...
 
   invisible(results)
 }
+
+### --------------------------------------------------------------------------------------------------------------------
+
+getJaspFStats <- function(results) {
+  results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_anovaTable"]][["data"]] |>
+    sapply("[[", x = "F") |>
+    unlist()
+}
+
+### --------------------------------------------------------------------------------------------------------------------
+
+getJaspInfoCriteria <- function(results) {
+  tmp <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_summaryTable"]][["data"]]
+
+  list(
+    aic = sapply(tmp, "[[", x = "AIC") |> unlist(),
+    bic = sapply(tmp, "[[", x = "BIC") |> unlist()
+  )
+}
