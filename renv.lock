@@ -2934,12 +2934,12 @@
     },
     "estimability": {
       "Package": "estimability",
-      "Version": "1.5.1",
+      "Version": "2.0.0",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Tools for Assessing Estimability of Linear Predictions",
-      "Date": "2024-05-12",
-      "Authors@R": "c(person(\"Russell\", \"Lenth\", role = c(\"aut\", \"cre\", \"cph\"),  email = \"russell-lenth@uiowa.edu\"))",
+      "Date": "2026-06-18",
+      "Authors@R": "c(person(\"Russell\", \"Lenth\", role = c(\"aut\", \"cph\"),  email = \"russell-lenth@uiowa.edu\"), person(\"Michael\", \"Dumelle\", role = c(\"cre\", \"aut\"), email = \"Dumelle.Michael@epa.gov\"))",
       "Depends": [
         "stats",
         "R(>= 4.1.0)"
@@ -2954,9 +2954,11 @@
       "ByteCompile": "yes",
       "License": "GPL (>= 3)",
       "VignetteBuilder": "knitr",
+      "Encoding": "UTF-8",
+      "RoxygenNote": "7.3.3",
       "NeedsCompilation": "no",
-      "Author": "Russell Lenth [aut, cre, cph]",
-      "Maintainer": "Russell Lenth <russell-lenth@uiowa.edu>",
+      "Author": "Russell Lenth [aut, cph], Michael Dumelle [cre, aut]",
+      "Maintainer": "Michael Dumelle <Dumelle.Michael@epa.gov>",
       "Repository": "CRAN"
     },
     "evaluate": {
@@ -4097,7 +4099,7 @@
     },
     "ggsci": {
       "Package": "ggsci",
-      "Version": "5.0.0",
+      "Version": "5.1.0",
       "Source": "Repository",
       "Type": "Package",
       "Title": "Scientific Journal and Sci-Fi Themed Color Palettes for 'ggplot2'",
@@ -4124,7 +4126,7 @@
       ],
       "VignetteBuilder": "knitr",
       "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.3",
+      "Config/roxygen2/version": "8.0.0",
       "NeedsCompilation": "no",
       "Author": "Nan Xiao [aut, cre, cph] (ORCID: <https://orcid.org/0000-0002-0250-5673>), Joshua Cook [ctb], Clara Jégousse [ctb], Hui Chen [ctb], Miaozhu Li [ctb], iTerm2-Color-Schemes contributors [ctb, cph] (iTerm2-Color-Schemes project), Winston Chang [ctb, cph] (staticimports.R)",
       "Repository": "CRAN"
@@ -4425,9 +4427,9 @@
     },
     "gridExtra": {
       "Package": "gridExtra",
-      "Version": "2.3",
+      "Version": "2.3.1",
       "Source": "Repository",
-      "Authors@R": "c(person(\"Baptiste\", \"Auguie\", email = \"baptiste.auguie@gmail.com\", role = c(\"aut\", \"cre\")), person(\"Anton\", \"Antonov\", email = \"tonytonov@gmail.com\", role = c(\"ctb\")))",
+      "Authors@R": "c(person(\"Baptiste\", \"Auguie\", email = \"baptiste.auguie@vuw.ac.nz\", role = c(\"aut\", \"cre\")), person(\"Anton\", \"Antonov\", email = \"tonytonov@gmail.com\", role = c(\"ctb\")))",
       "License": "GPL (>= 2)",
       "Title": "Miscellaneous Functions for \"Grid\" Graphics",
       "Type": "Package",
@@ -4450,7 +4452,7 @@
       "RoxygenNote": "6.0.1",
       "NeedsCompilation": "no",
       "Author": "Baptiste Auguie [aut, cre], Anton Antonov [ctb]",
-      "Maintainer": "Baptiste Auguie <baptiste.auguie@gmail.com>",
+      "Maintainer": "Baptiste Auguie <baptiste.auguie@vuw.ac.nz>",
       "Repository": "CRAN"
     },
     "gridGraphics": {
@@ -5264,7 +5266,7 @@
       "RemoteUsername": "jasp-stats",
       "RemoteRepo": "jaspAnova",
       "RemoteRef": "master",
-      "RemoteSha": "33d0e3a07b4ccb75a0a7c4d209e87b442ce4fd2b",
+      "RemoteSha": "92a6a9ed6409592cc168099cd92bb1dea9c3a0c8",
       "RemoteHost": "api.github.com"
     },
     "jaspBase": {
@@ -5481,7 +5483,7 @@
       "RemoteUsername": "jasp-stats",
       "RemoteRepo": "jaspTTests",
       "RemoteRef": "master",
-      "RemoteSha": "6d2a57de1f768455c9fe703afab327967e46f211"
+      "RemoteSha": "0720ba1102fcbfe804dd889ce4166cdf62f53beb"
     },
     "jaspTools": {
       "Package": "jaspTools",
