@@ -33,7 +33,8 @@ makePooledLm <- function(pool, poolingParams) {
       return(fits)
     }
 
-    new_pooledLm(fits, pooling = poolingParams)
+    match.call() |>
+      new_pooledLm(fits, pooling = poolingParams, call = _)
   }
 }
 
@@ -42,7 +43,8 @@ makePooledLm <- function(pool, poolingParams) {
 new_pooledLm <- function(
   fits,
   pooling = list(fStat = "d3", llEst = "qBar"),
-  include = list(fits = TRUE, model = FALSE, qr = FALSE, x = FALSE)
+  include = list(fits = TRUE, model = FALSE, qr = FALSE, x = FALSE),
+  call = match.call()
 ) {
   fits <- .checkInputs(fits, pooling)
 
@@ -50,6 +52,8 @@ new_pooledLm <- function(
   ## the appropriate parts with MI-based estimates.
   obj <- fits$analyses[[1]]
   class(obj) <- c("pooledLm", class(obj))
+
+  obj$call <- call
 
   ## We need to extract these things before casting the 'fits' as a mira object:
   residuals <- sapply(fits$analyses, resid)
@@ -360,3 +364,63 @@ anova.pooledLm <- function(object, ...) {
 # }
 
 ### --------------------------------------------------------------------------------------------------------------------
+
+# library(mice)
+# library(sloop, lib.loc = "~/R/library/4.5")
+#
+# ?model.frame
+#
+# mids <- mice(boys)
+# imps <- complete(mids, "all")
+# pooledLm <- makePooledLm(TRUE, list(fStat = "d3", llEst = "qBar"))
+# w <- lapply(1:5, function(x) rep(1, nrow(boys)))
+# fits <- pooledLm("age ~ hgt + wgt", imps, w)
+# fits$call
+# form <- update(formula(fits), ". ~ . + reg")
+#
+# debug("update")
+#
+# update(fits, form)
+#
+# model.frame(form, imps)
+#
+# fits |> summary() |> print()
+#
+# fit1 <- fits$fits$analyses[[1]]
+# fit2 <- lm(age ~ hgt + wgt, data = imps[[1]])
+# summary(fit2)
+# fit1
+#
+# fits$fits |> ls()
+#
+# ?call
+# m <- 1
+# data <- imps
+# for (m in 1:length(imps)) {
+#   update(fits$fits$analyses[[m]], ". ~ . + reg")
+# }
+# update(fits$fits$analyses[[1]], ". ~ . + reg")
+#
+# update.formula(formula(fits), ". ~ . + reg")
+# ?update
+#
+# fit0 <- fits$fits$analyses[[1]]
+#
+# update(fits, ". ~ . + reg", evaluate = FALSE)
+# fits2 <- update(fits, ". ~ . + reg")
+# class(fits2)
+# fits2 |> summary() |> print()
+#
+# fits$fits$call
+#
+# update.formula
+#
+# traceback()
+# getS3method("update", "default")
+# getS3method("model.frame", "default")
+#
+# update
+#
+# fits$call
+# getCall(fits)
+# match.call()

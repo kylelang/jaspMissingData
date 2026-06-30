@@ -54,14 +54,22 @@
   #   jaspRegression:::.linregCreateBootstrapCoefficientsTable(modelContainer, model, dataset, options, position = 4)
 
   if (options$equationTable && is.null(modelContainer[["equationTable"]])) {
-    jaspRegression:::.linregCreateEquationTable(modelContainer, model, dataset, options, position = 6)
+    jaspRegression:::.linregCreateEquationTable(modelContainer, model, dataset, options, position = 4)
   }
 
-  # if (options$partAndPartialCorrelation && is.null(modelContainer[["partialCorTable"]]))
-  #   jaspRegression:::.linregCreatePartialCorrelationsTable(modelContainer, model, dataset, options, position = 6)
+  if (options$partAndPartialCorrelation && is.null(modelContainer[["partialCorTable"]])) {
+    jaspRegression:::.linregCreatePartialCorrelationsTable(
+      modelContainer,
+      model,
+      impData,
+      options,
+      position = 5,
+      lmFunction = lmFunction
+    )
+  }
 
   if (options$covarianceMatrix && is.null(modelContainer[["coeffCovMatrixTable"]])) {
-    jaspRegression:::.linregCreateCoefficientsCovarianceMatrixTable(modelContainer, model, options, position = 4)
+    jaspRegression:::.linregCreateCoefficientsCovarianceMatrixTable(modelContainer, model, options, position = 6)
   }
 
   # if (options$collinearityDiagnostic && is.null(modelContainer[["collinearityTable"]]))

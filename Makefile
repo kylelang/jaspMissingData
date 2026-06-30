@@ -17,6 +17,9 @@ update:
 snapshot:
 	Rscript -e "renv::snapshot()"
 
+regression:
+	Rscript -e "renv::install('~/data/software/jasp/modules/regression/jaspRegression', repos = NULL, rebuild = TRUE)"
+
 ## Build the package:
 build: R/* roxygen | $(BUILD_DIR)
 	R CMD build ./ > $(BUILD_DIR)/$(PKG_NAME).tar.gz
@@ -33,4 +36,4 @@ roxygen:
 $(BUILD_DIR):
 	mkdir $(BUILD_DIR)
 
-.PHONY: $(BUILD_DIR) roxygen renv update snapshot
+.PHONY: $(BUILD_DIR) roxygen renv update snapshot regression

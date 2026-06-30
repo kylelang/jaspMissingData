@@ -23,7 +23,6 @@ Suggests:
 Remotes:
   jasp-stats/jaspBase,
   jasp-stats/jaspGraphs,
-  kylelang/jaspRegression@missingData,
   jasp-stats/jaspTools
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0
