@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .runRegression <- function(jaspResults, options, ready, lmFunction) {
   impData <- jaspResults[["MiceMids"]]$object |> mice::complete("all")
@@ -46,9 +46,10 @@
 
   if (options$coefficientEstimate && is.null(modelContainer[["coeffTable"]])) {
     jaspRegression:::.linregCreateCoefficientsTable(modelContainer, model, impData, options, position = 3)
+    .addPooledStdCoefficients(modelContainer[["coeffTable"]], model, impData, options)
   }
 
-  # TODO (KML): Check what we can do about the bootstrapping, partial cor, and collinearity tables
+  # TODO (KML): Check what we can do about the bootstrapping and collinearity tables
 
   # if (options$coefficientBootstrap && is.null(modelContainer[["bootstrapCoeffTable"]]))
   #   jaspRegression:::.linregCreateBootstrapCoefficientsTable(modelContainer, model, dataset, options, position = 4)
@@ -81,7 +82,7 @@
   }
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .pooledRSquaredChange <- function(fit1, fit0 = NULL) {
   if (is.null(fit0)) {
@@ -106,7 +107,43 @@
   out
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
+
+.addPooledStdCoefficients <- function(coefficientsTable, model, dataset, options) {
+  coefTab <- coefficientsTable$toRObject()
+
+  for (mod in model) {
+    if (is.null(mod$predictors)) {
+      next
+    }
+
+    stdBeta <- .pooledStdBetas(mod, dataset, options)
+    modRows <- coefTab$model == mod$title
+
+    for (x in names(stdBeta)) {
+      coefRows <- x == coefTab$name
+      coefTab[modRows & coefRows, "standCoeff"] <- stdBeta[x]
+    }
+  }
+  coefficientsTable$setData(coefTab)
+}
+
+### --------------------------------------------------------------------------------------------------------------------
+
+.pooledStdBetas <- function(model, data, options) {
+  numVars <- setdiff(c(options$dependent, model$predictors), names(model$fit$contrasts))
+  pooledSd <- sapply(data, function(dat, v) dat[v] |> sapply(var), v = numVars) |>
+    rowMeans() |>
+    sqrt()
+
+  sdX <- pooledSd[-1]
+  sdY <- pooledSd[1]
+
+  beta <- coef(model$fit)[names(sdX)]
+  beta * sdX / sdY
+}
+
+### --------------------------------------------------------------------------------------------------------------------
 
 .updateDescriptivesTable <- function(descriptivesTable, dataset, options) {
   variables <- c(options$dependent, unlist(options$covariates))
@@ -118,7 +155,7 @@
   }
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .pooledDescriptives <- function(variables, dataset) {
   descriptives <- vector("list", length(variables))
@@ -142,7 +179,7 @@
   descriptives
 }
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .checkRegressionValidVars <- function(options, jaspResults) {
   regvars <- c(options$dependent, options$covariates, options$factors)
