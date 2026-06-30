@@ -38,16 +38,11 @@
     jaspRegression:::.linregCreateSummaryTable(modelContainer, model, options, position = 1)
   }
 
-  # TODO (KML): Check the R2, F, AIC/BIC stuff and put MI appropriate versions in
   # TODO (KML): Add footnotes about pooling
 
   if (options$modelFit && is.null(modelContainer[["anovaTable"]])) {
     jaspRegression:::.linregCreateAnovaTable(modelContainer, model, options, position = 2)
   }
-
-  # TODO (KML): Check the ANOVA stats.
-  #             - Are they correct for MI data
-  #             - Do they correctly adjust for D1, D2, D3?
 
   if (options$coefficientEstimate && is.null(modelContainer[["coeffTable"]])) {
     jaspRegression:::.linregCreateCoefficientsTable(modelContainer, model, impData, options, position = 3)
@@ -57,6 +52,10 @@
 
   # if (options$coefficientBootstrap && is.null(modelContainer[["bootstrapCoeffTable"]]))
   #   jaspRegression:::.linregCreateBootstrapCoefficientsTable(modelContainer, model, dataset, options, position = 4)
+
+  if (options$equationTable && is.null(modelContainer[["equationTable"]])) {
+    jaspRegression:::.linregCreateEquationTable(modelContainer, model, dataset, options, position = 6)
+  }
 
   # if (options$partAndPartialCorrelation && is.null(modelContainer[["partialCorTable"]]))
   #   jaspRegression:::.linregCreatePartialCorrelationsTable(modelContainer, model, dataset, options, position = 6)
@@ -78,20 +77,20 @@
   if (is.null(fit0)) {
     out <- list(
       R2c = NA,
-      Fc  = NA,
+      Fc = NA,
       df1 = 0,
       df2 = fit1$df.residual,
-      p   = NA
+      p = NA
     )
   } else {
     fOut <- fit1$fFun(fit1 = fit1$fits, fit0 = fit0$fits)
 
     out <- list(
       R2c = fit1$pooled$r2[1, "est"] - fit0$pooled$r2[1, "est"],
-      Fc  = fOut$result[[1]],
+      Fc = fOut$result[[1]],
       df1 = fOut$result[[2]],
       df2 = fOut$result[[3]],
-      p   = fOut$result[[4]]
+      p = fOut$result[[4]]
     )
   }
   out
@@ -104,12 +103,15 @@
 .checkRegressionValidVars <- function(options, jaspResults) {
   regvars <- c(options$dependent, options$covariates, options$factors)
   impvars <- colnames(jaspResults[["MiceMids"]]$object$data)
-  if(any(!regvars %in% impvars)) {
+  if (any(!regvars %in% impvars)) {
     notimputed <- regvars[which(!regvars %in% impvars)]
     stop(
-      "The variables ", 
-      paste0(jaspBase::decodeColNames(notimputed), collapse = ", ", 
-      " are not included in the imputation object. If you really don't want to include these variables in the imputation, exclude them through the imputation model specification."),
+      "The variables ",
+      paste0(
+        jaspBase::decodeColNames(notimputed),
+        collapse = ", ",
+        " are not included in the imputation object. If you really don't want to include these variables in the imputation, exclude them through the imputation model specification."
+      ),
       call. = FALSE
     )
   }
