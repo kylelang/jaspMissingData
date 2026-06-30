@@ -4795,13 +4795,9 @@
       "LinkingTo": [
         "Rcpp"
       ],
-      "NeedsCompilation": "yes",
-      "Depends": [
-        "R (>= 4.1.0)"
-      ],
       "RemoteType": "local",
       "Remotes": "AlexanderLyNL/bstats, jasp-stats/jaspAnova, jasp-stats/jaspBase, jasp-stats/jaspDescriptives, jasp-stats/jaspGraphs, jasp-stats/jaspTTests, vandenman/jaspTools",
-      "RemoteUrl": "~/data/software/jasp/modules/regression/jaspRegression/jaspRegression_0.9999.tar.gz"
+      "RemoteUrl": "~/data/software/jasp/modules/regression/jaspRegression"
     },
     "jaspTTests": {
       "Package": "jaspTTests",

@@ -74,10 +74,12 @@
 
   # if (options$collinearityDiagnostic && is.null(modelContainer[["collinearityTable"]]))
   #   jaspRegression:::.linregCreateCollinearityDiagnosticsTable(modelContainer, model, options, position = 8)
-}
 
-## Execute .runRegression() within the 'jaspRegression' namespace:
-# environment(.runRegression) <- asNamespace("jaspRegression")
+  if (options$descriptives && is.null(modelContainer[["descriptivesTable"]])) {
+    jaspRegression:::.linregCreateDescriptivesTable(modelContainer, impData[[1]], options, position = 5)
+    .updateDescriptivesTable(modelContainer[["descriptivesTable"]], impData, options)
+  }
+}
 
 ### ------------------------------------------------------------------------------------------------------------------###
 
@@ -104,7 +106,41 @@
   out
 }
 
-# environment(.pooledRSquaredChange) <- asNamespace("jaspRegression")
+### ------------------------------------------------------------------------------------------------------------------###
+
+.updateDescriptivesTable <- function(descriptivesTable, dataset, options) {
+  variables <- c(options$dependent, unlist(options$covariates))
+  variables <- variables[variables != ""]
+
+  if (length(variables) > 0) {
+    descriptivesTable$setData(NULL)
+    descriptivesTable$addRows(.pooledDescriptives(variables, dataset))
+  }
+}
+
+### ------------------------------------------------------------------------------------------------------------------###
+
+.pooledDescriptives <- function(variables, dataset) {
+  descriptives <- vector("list", length(variables))
+
+  for (i in seq_along(variables)) {
+    descriptives[[i]] <- list()
+
+    variable <- variables[[i]]
+    data <- lapply(dataset, function(x, y) x[[y]], y = variable)
+
+    n <- length(data[[1]])
+    v <- sapply(data, var) |> mean()
+    b <- sapply(data, mean) |> var()
+
+    descriptives[[i]][["var"]] <- variable
+    descriptives[[i]][["N"]] <- n
+    descriptives[[i]][["mean"]] <- mean(unlist(data))
+    descriptives[[i]][["SD"]] <- sqrt(v)
+    descriptives[[i]][["SE"]] <- (sqrt(v) / sqrt(n)) + b + (b / length(data))
+  }
+  descriptives
+}
 
 ### ------------------------------------------------------------------------------------------------------------------###
 
