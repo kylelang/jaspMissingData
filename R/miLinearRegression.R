@@ -113,7 +113,8 @@
   coefTab <- coefficientsTable$toRObject()
 
   for (mod in model) {
-    if (is.null(mod$predictors)) {
+    numPreds <- setdiff(mod$predictors, options$factors)
+    if (length(numPreds) == 0) {
       next
     }
 
@@ -131,7 +132,7 @@
 ### --------------------------------------------------------------------------------------------------------------------
 
 .pooledStdBetas <- function(model, data, options) {
-  numVars <- setdiff(c(options$dependent, model$predictors), names(model$fit$contrasts))
+  numVars <- setdiff(c(options$dependent, model$predictors), options$factors)
   pooledSd <- sapply(data, function(dat, v) dat[v] |> sapply(var), v = numVars) |>
     rowMeans() |>
     sqrt()
