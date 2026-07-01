@@ -121,7 +121,7 @@
     modRows <- coefTab$model == mod$title
 
     for (x in names(stdBeta)) {
-      coefRows <- x == coefTab$name
+      coefRows <- decodeColNames(x) == coefTab$name
       coefTab[modRows & coefRows, "standCoeff"] <- stdBeta[x]
     }
   }
