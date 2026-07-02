@@ -80,10 +80,6 @@ test_that("Linear regression parameters pool correctly with numeric and categori
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-test_that("The coefficients covariance matrices are pooled correctly.", {})
-
-### --------------------------------------------------------------------------------------------------------------------
-
 # fmt: skip
 test_that("Coefficients table results match", {
   table <- results[["results"]][["ModelContainer"]][["collection"]][["ModelContainer_coeffTable"]][["data"]]

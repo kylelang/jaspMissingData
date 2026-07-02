@@ -175,7 +175,7 @@
     descriptives[[i]][["N"]] <- n
     descriptives[[i]][["mean"]] <- mean(unlist(data))
     descriptives[[i]][["SD"]] <- sqrt(v)
-    descriptives[[i]][["SE"]] <- (sqrt(v) / sqrt(n)) + b + (b / length(data))
+    descriptives[[i]][["SE"]] <- sqrt((v / n) + b + (b / length(data)))
   }
   descriptives
 }
