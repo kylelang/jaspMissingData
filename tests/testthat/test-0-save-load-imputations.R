@@ -1,9 +1,13 @@
 boys <- readRDS(test_path("fixtures", "boys.rds"))
 options <- readRDS(test_path("fixtures", "mi_options.rds"))
 
+# options$savePath <- savePath <- test_path("tmp", "testSave.jaspImp")
+savePath <- tempfile("testSave-", fileext = ".jaspImp")
+on.exit(unlink(savePath), add = TRUE)
+
+options$savePath <- savePath
 options$tracePlot <- TRUE
 options$saveImps <- TRUE
-options$savePath <- savePath <- test_path("tmp", "testSave.jaspImp")
 
 results <- jaspTools::runAnalysis("MissingDataImputation", boys, options)
 
@@ -36,5 +40,3 @@ test_that("Loading imputed data works.", {
     results[["state"]][["other"]][[1]]
   )
 })
-
-unlink(savePath)

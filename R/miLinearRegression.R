@@ -55,7 +55,7 @@
   #   jaspRegression:::.linregCreateBootstrapCoefficientsTable(modelContainer, model, dataset, options, position = 4)
 
   if (options$equationTable && is.null(modelContainer[["equationTable"]])) {
-    jaspRegression:::.linregCreateEquationTable(modelContainer, model, dataset, options, position = 4)
+    jaspRegression:::.linregCreateEquationTable(modelContainer, model, impData[[1]], options, position = 4)
   }
 
   if (options$partAndPartialCorrelation && is.null(modelContainer[["partialCorTable"]])) {
@@ -77,7 +77,7 @@
   #   jaspRegression:::.linregCreateCollinearityDiagnosticsTable(modelContainer, model, options, position = 8)
 
   if (options$descriptives && is.null(modelContainer[["descriptivesTable"]])) {
-    jaspRegression:::.linregCreateDescriptivesTable(modelContainer, impData[[1]], options, position = 5)
+    jaspRegression:::.linregCreateDescriptivesTable(modelContainer, impData[[1]], options, position = 7)
     .updateDescriptivesTable(modelContainer[["descriptivesTable"]], impData, options)
   }
 }
