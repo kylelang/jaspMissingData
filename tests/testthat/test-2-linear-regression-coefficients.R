@@ -1,21 +1,3 @@
-# rm(list = ls(all = TRUE))
-#
-# remotes::install_github("kylelang/jaspRegression@missingData")
-# remotes::install_github("jasp-stats/jaspTools")
-#
-# setupJaspTools()
-# install.packages("here")
-#
-library(testthat)
-library(mice)
-# library(dplyr)
-library(jaspTools)
-#
-# setPkgOption("module.dirs", here::here())
-#
-setwd(here::here())
-# source(test_path("setup.R"))
-
 boys <- readRDS(test_path("fixtures", "boys.rds"))
 miceMids <- readRDS(test_path("fixtures", "mice_mids.rds"))
 options <- readRDS(test_path("fixtures", "lin_reg_options.rds"))
