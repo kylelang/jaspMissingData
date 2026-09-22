@@ -2,6 +2,9 @@ boys <- readRDS(test_path("fixtures", "boys.rds"))
 miceMids <- readRDS(test_path("fixtures", "mice_mids.rds"))
 options <- readRDS(test_path("fixtures", "lin_reg_options.rds"))
 
+library(mice)
+library(jaspTools)
+
 miraList <- list(
   with(miceMids, lm(tv ~ 1)),
   with(miceMids, lm(tv ~ hgt + wgt)),
@@ -67,9 +70,9 @@ icQHat <- getJaspInfoCriteria(results)
 
 test_that(
   "The value of 'llEst' affects the information criteria.",
-  expect_equal(
-    unlist(icQBar) == unlist(icQHat),
-    c(TRUE, FALSE, FALSE, TRUE, FALSE, FALSE),
+  expect_identical(
+    abs(unlist(icQBar) - unlist(icQHat)) > .Machine$double.eps,
+    c(FALSE, TRUE, TRUE, FALSE, TRUE, TRUE),
     ignore_attr = TRUE
   )
 )

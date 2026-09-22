@@ -385,7 +385,12 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
   convergencePlots[["TracePlot"]] <- tracePlot
 
-  tracePlot$plotObject <- miceMids$object |> ggmice::plot_trace()
+  nonNull <- !sapply(miceMids$object$imp, is.null)
+  imputedVariables <- (sapply(miceMids$object$imp[nonNull], nrow) > 0) |>
+    which() |>
+    names()
+
+  tracePlot$plotObject <- miceMids$object |> ggmice::plot_trace(vrb = !!imputedVariables)
 }
 
 ### --------------------------------------------------------------------------------------------------------------------

@@ -15,7 +15,7 @@ update:
 
 ## Update the state of the lockfile to match the renv library state:
 snapshot:
-	Rscript -e "renv::snapshot()"
+	Rscript -e "renv::snapshot(dev = TRUE, exclude = 'colorout')"
 
 regression:
 	Rscript -e "renv::install('~/data/software/jasp/modules/regression/jaspRegression', repos = NULL, rebuild = TRUE)"

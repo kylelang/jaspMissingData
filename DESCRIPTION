@@ -2,7 +2,7 @@ Package: jaspMissingData
 Type: Package
 Title: A module for missing data analysis in JASP
 Version: 0.1.0
-Date: 2025-08-15
+Date: 2026-09-22
 Author: UU JASP Team
 Website: jasp-stats.org
 Maintainer: JASP Team <info@jasp-stats.org>
@@ -19,7 +19,8 @@ Imports:
 Suggests:
   testthat (>= 3.0.0),
   devtools,
-  jaspTools
+  jaspTools,
+	here
 Remotes:
   jasp-stats/jaspBase,
   jasp-stats/jaspGraphs,
