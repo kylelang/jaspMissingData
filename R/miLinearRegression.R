@@ -45,7 +45,9 @@
   }
 
   if (options$coefficientEstimate && is.null(modelContainer[["coeffTable"]])) {
-    jaspRegression:::.linregCreateCoefficientsTable(modelContainer, model, impData, options, position = 3)
+    ## We can safely pass 'impData[[1]]' below because the dataset is only used to compute the standardized coefficients
+    ## and we're just going to overwrite those on the next line.
+    jaspRegression:::.linregCreateCoefficientsTable(modelContainer, model, impData[[1]], options, position = 3)
     .addPooledStdCoefficients(modelContainer[["coeffTable"]], model, impData, options)
   }
 
@@ -118,7 +120,7 @@
       next
     }
 
-    stdBeta <- .pooledStdBetas(mod, dataset, options)
+    stdBeta <- .pooledStdBetas(mod)
     modRows <- coefTab$model == mod$title
 
     for (x in names(stdBeta)) {
@@ -131,18 +133,33 @@
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-.pooledStdBetas <- function(model, data, options) {
-  numVars <- setdiff(c(options$dependent, model$predictors), options$factors)
-  pooledSd <- sapply(data, function(dat, v) dat[v] |> sapply(var), v = numVars) |>
-    rowMeans() |>
+.pooledStdBetas <- function(model) {
+  sdY <- sapply(model$fit$fits$analyses, function(x) var(x$model[[1]])) |>
+    mean() |>
     sqrt()
 
-  sdX <- pooledSd[-1]
-  sdY <- pooledSd[1]
+  sdX <- sapply(model$fit$fits$analyses, function(x) model.matrix(x)[, -1] |> apply(2, var)) |>
+    rowMeans() |>
+    sqrt()
 
   beta <- coef(model$fit)[names(sdX)]
   beta * sdX / sdY
 }
+
+### --------------------------------------------------------------------------------------------------------------------
+
+# .pooledStdBetas2 <- function(model, data, options) {
+#   numVars <- setdiff(c(options$dependent, model$predictors), options$factors)
+#   pooledSd <- sapply(data, function(dat, v) dat[v] |> sapply(var), v = numVars) |>
+#     rowMeans() |>
+#     sqrt()
+#
+#   sdX <- pooledSd[-1]
+#   sdY <- pooledSd[1]
+#
+#   beta <- coef(model$fit)[names(sdX)]
+#   beta * sdX / sdY
+# }
 
 ### --------------------------------------------------------------------------------------------------------------------
 
