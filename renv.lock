@@ -3781,40 +3781,6 @@
       "Maintainer": "Brenton M. Wiernik <brenton@wiernik.org>",
       "Repository": "CRAN"
     },
-    "gitcreds": {
-      "Package": "gitcreds",
-      "Version": "0.1.2",
-      "Source": "Repository",
-      "Title": "Query 'git' Credentials from 'R'",
-      "Authors@R": "c( person(\"Gábor\", \"Csárdi\", , \"csardi.gabor@gmail.com\", role = c(\"aut\", \"cre\")), person(\"RStudio\", role = c(\"cph\", \"fnd\")) )",
-      "Description": "Query, set, delete credentials from the 'git' credential store. Manage 'GitHub' tokens and other 'git' credentials. This package is to be used by other packages that need to authenticate to 'GitHub' and/or other 'git' repositories.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://gitcreds.r-lib.org/, https://github.com/r-lib/gitcreds",
-      "BugReports": "https://github.com/r-lib/gitcreds/issues",
-      "Depends": [
-        "R (>= 3.4)"
-      ],
-      "Suggests": [
-        "codetools",
-        "covr",
-        "knitr",
-        "mockery",
-        "oskeyring",
-        "rmarkdown",
-        "testthat (>= 3.0.0)",
-        "withr"
-      ],
-      "VignetteBuilder": "knitr",
-      "Config/Needs/website": "tidyverse/tidytemplate",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.2.1.9000",
-      "SystemRequirements": "git",
-      "Config/testthat/edition": "3",
-      "NeedsCompilation": "no",
-      "Author": "Gábor Csárdi [aut, cre], RStudio [cph, fnd]",
-      "Maintainer": "Gábor Csárdi <csardi.gabor@gmail.com>",
-      "Repository": "CRAN"
-    },
     "glmnet": {
       "Package": "glmnet",
       "Version": "5.0",
@@ -4145,44 +4111,6 @@
       "NeedsCompilation": "yes",
       "Author": "Hadley Wickham [aut, cre], Evan Miller [aut, cph] (Author of included ReadStat code), Danny Smith [aut], Posit Software, PBC [cph, fnd]",
       "Maintainer": "Hadley Wickham <hadley@posit.co>",
-      "Repository": "CRAN"
-    },
-    "here": {
-      "Package": "here",
-      "Version": "1.0.2",
-      "Source": "Repository",
-      "Title": "A Simpler Way to Find Your Files",
-      "Date": "2025-09-06",
-      "Authors@R": "c(person(given = \"Kirill\", family = \"M\\u00fcller\", role = c(\"aut\", \"cre\"), email = \"kirill@cynkra.com\", comment = c(ORCID = \"0000-0002-1416-3412\")), person(given = \"Jennifer\", family = \"Bryan\", role = \"ctb\", email = \"jenny@rstudio.com\", comment = c(ORCID = \"0000-0002-6983-2759\")))",
-      "Description": "Constructs paths to your project's files. Declare the relative path of a file within your project with 'i_am()'. Use the 'here()' function as a drop-in replacement for 'file.path()', it will always locate the files relative to your project root.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://here.r-lib.org/, https://github.com/r-lib/here",
-      "BugReports": "https://github.com/r-lib/here/issues",
-      "Imports": [
-        "rprojroot (>= 2.1.0)"
-      ],
-      "Suggests": [
-        "conflicted",
-        "covr",
-        "fs",
-        "knitr",
-        "palmerpenguins",
-        "plyr",
-        "readr",
-        "rlang",
-        "rmarkdown",
-        "testthat",
-        "uuid",
-        "withr"
-      ],
-      "VignetteBuilder": "knitr",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.3.9000",
-      "Config/testthat/edition": "3",
-      "Config/Needs/website": "tidyverse/tidytemplate",
-      "NeedsCompilation": "no",
-      "Author": "Kirill Müller [aut, cre] (ORCID: <https://orcid.org/0000-0002-1416-3412>), Jennifer Bryan [ctb] (ORCID: <https://orcid.org/0000-0002-6983-2759>)",
-      "Maintainer": "Kirill Müller <kirill@cynkra.com>",
       "Repository": "CRAN"
     },
     "highr": {
@@ -4707,18 +4635,14 @@
         "stringr",
         "restriktor"
       ],
-      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspDescriptives, jasp-stats/jaspGraphs, jasp-stats/jaspTTests",
       "RoxygenNote": "7.3.2",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "jaspAnova",
+      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspDescriptives, jasp-stats/jaspGraphs, jasp-stats/jaspTTests",
       "RemoteUsername": "jasp-stats",
+      "RemoteRepo": "jaspAnova",
       "RemoteRef": "HEAD",
-      "RemoteSha": "786c3b3de7f26ee0fc2a6a92620c7d471c076895",
-      "NeedsCompilation": "no",
-      "Depends": [
-        "R (>= 3.5.0)"
-      ]
+      "RemoteSha": "a65d21d94ca4b4e8e953d95608ba956a73a0c9cc",
+      "RemoteHost": "api.github.com"
     },
     "jaspBase": {
       "Package": "jaspBase",
@@ -4754,7 +4678,6 @@
         "systemfonts",
         "withr"
       ],
-      "Remotes": "jasp-stats/jaspGraphs",
       "RoxygenNote": "7.3.3",
       "Roxygen": "list(markdown = TRUE)",
       "Encoding": "UTF-8",
@@ -4768,14 +4691,12 @@
       ],
       "Config/testthat/edition": "3",
       "RemoteType": "github",
+      "Remotes": "jasp-stats/jaspGraphs",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "jaspBase",
       "RemoteUsername": "jasp-stats",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "f6e133c40b95bff441d344bf193054d4c98c7e47",
-      "Depends": [
-        "R (>= 4.1.0)"
-      ]
+      "RemoteRepo": "jaspBase",
+      "RemoteRef": "master",
+      "RemoteSha": "a9364a5e401d51052240c3d8e068494a6c31f105"
     },
     "jaspDescriptives": {
       "Package": "jaspDescriptives",
@@ -4808,18 +4729,14 @@
         "forcats",
         "patchwork"
       ],
-      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspGraphs, jasp-stats/jaspTTests, dustinfife/flexplot",
       "RoxygenNote": "7.3.3",
       "RemoteType": "github",
+      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspGraphs, jasp-stats/jaspTTests, dustinfife/flexplot",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "jaspDescriptives",
       "RemoteUsername": "jasp-stats",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "208d2527e746da93c6912a503cb1b0d73e649c2c",
-      "NeedsCompilation": "no",
-      "Depends": [
-        "R (>= 4.1.0)"
-      ]
+      "RemoteRepo": "jaspDescriptives",
+      "RemoteRef": "master",
+      "RemoteSha": "874ea5d94e5b1819de347c8e7652b1983a2ba9da"
     },
     "jaspGraphs": {
       "Package": "jaspGraphs",
@@ -4832,6 +4749,7 @@
       "Description": "Graph making functions and wrappers for JASP.",
       "License": "GPL",
       "Encoding": "UTF-8",
+      "LazyData": "true",
       "Imports": [
         "cli",
         "ggplot2 (>= 3.0.0)",
@@ -4853,14 +4771,10 @@
       "Config/roxygen2/version": "8.0.0",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "jaspGraphs",
       "RemoteUsername": "jasp-stats",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "edb912bfb3435da6f079068a176f46cd8294b4e0",
-      "NeedsCompilation": "no",
-      "Depends": [
-        "R (>= 4.1.0)"
-      ]
+      "RemoteRepo": "jaspGraphs",
+      "RemoteRef": "master",
+      "RemoteSha": "4d2547c6e9bd26d87ef2b4ba8d5cdeed0033927a"
     },
     "jaspRegression": {
       "Package": "jaspRegression",
@@ -4937,18 +4851,14 @@
         "plotrix",
         "plyr"
       ],
-      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspGraphs",
       "RoxygenNote": "7.3.2",
       "RemoteType": "github",
+      "Remotes": "jasp-stats/jaspBase, jasp-stats/jaspGraphs",
       "RemoteHost": "api.github.com",
-      "RemoteRepo": "jaspTTests",
       "RemoteUsername": "jasp-stats",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "660da6435253f689da55b14457d7adfaef8fd08f",
-      "NeedsCompilation": "no",
-      "Depends": [
-        "R (>= 3.5.0)"
-      ]
+      "RemoteRepo": "jaspTTests",
+      "RemoteRef": "master",
+      "RemoteSha": "63a20ae5f104293b9833b3c7de2d053dd44c758d"
     },
     "jomo": {
       "Package": "jomo",
@@ -8244,40 +8154,6 @@
       "Repository": "CRAN",
       "URL": "https://github.com/bethatkinson/rpart, https://cran.r-project.org/package=rpart",
       "BugReports": "https://github.com/bethatkinson/rpart/issues"
-    },
-    "rprojroot": {
-      "Package": "rprojroot",
-      "Version": "2.1.1",
-      "Source": "Repository",
-      "Title": "Finding Files in Project Subdirectories",
-      "Authors@R": "person(given = \"Kirill\", family = \"M\\u00fcller\", role = c(\"aut\", \"cre\"), email = \"kirill@cynkra.com\", comment = c(ORCID = \"0000-0002-1416-3412\"))",
-      "Description": "Robust, reliable and flexible paths to files below a project root. The 'root' of a project is defined as a directory that matches a certain criterion, e.g., it contains a certain regular file.",
-      "License": "MIT + file LICENSE",
-      "URL": "https://rprojroot.r-lib.org/, https://github.com/r-lib/rprojroot",
-      "BugReports": "https://github.com/r-lib/rprojroot/issues",
-      "Depends": [
-        "R (>= 3.0.0)"
-      ],
-      "Suggests": [
-        "covr",
-        "knitr",
-        "lifecycle",
-        "rlang",
-        "rmarkdown",
-        "testthat (>= 3.2.0)",
-        "withr"
-      ],
-      "VignetteBuilder": "knitr",
-      "Config/testthat/edition": "3",
-      "Encoding": "UTF-8",
-      "RoxygenNote": "7.3.2.9000",
-      "Config/autostyle/scope": "line_breaks",
-      "Config/autostyle/strict": "true",
-      "Config/Needs/website": "tidyverse/tidytemplate",
-      "NeedsCompilation": "no",
-      "Author": "Kirill Müller [aut, cre] (ORCID: <https://orcid.org/0000-0002-1416-3412>)",
-      "Maintainer": "Kirill Müller <kirill@cynkra.com>",
-      "Repository": "CRAN"
     },
     "rstatix": {
       "Package": "rstatix",

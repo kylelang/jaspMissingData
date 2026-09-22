@@ -18,12 +18,24 @@
 ### --------------------------------------------------------------------------------------------------------------------
 
 .errorHandling <- function(dataset, options) {
+  ## First, check for constant variance, since we only want to target numeric variables
+  numericVars <- names(dataset)[sapply(dataset, is.numeric)]
   .hasErrors(
     dataset,
     "run",
-    type = c('observations', 'variance', 'infinity'),
+    type = 'variance',
+    variance.target = intersect(options$imputationTargets, numericVars),
+    exitAnalysisIfErrors = TRUE
+  )
+
+  ## Now, check for all other possible issues with the imputation targets
+  .hasErrors(
+    dataset,
+    "run",
+    type = c('infinity', 'factorLevels', 'observations', 'duplicateColumns'),
     all.target = options$imputationTargets,
     observations.amount = '< 2',
+    factorLevels.amount = '< 2',
     exitAnalysisIfErrors = TRUE
   )
 }
