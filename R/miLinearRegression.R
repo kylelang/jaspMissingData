@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .runRegression <- function(jaspResults, options, ready, lmFunction) {
   impData <- jaspResults[["MiceMids"]]$object |> mice::complete("all")
@@ -38,78 +38,162 @@
     jaspRegression:::.linregCreateSummaryTable(modelContainer, model, options, position = 1)
   }
 
-  # TODO (KML): Check the R2, F, AIC/BIC stuff and put MI appropriate versions in
   # TODO (KML): Add footnotes about pooling
 
   if (options$modelFit && is.null(modelContainer[["anovaTable"]])) {
     jaspRegression:::.linregCreateAnovaTable(modelContainer, model, options, position = 2)
   }
 
-  # TODO (KML): Check the ANOVA stats.
-  #             - Are they correct for MI data
-  #             - Do they correctly adjust for D1, D2, D3?
-
   if (options$coefficientEstimate && is.null(modelContainer[["coeffTable"]])) {
     jaspRegression:::.linregCreateCoefficientsTable(modelContainer, model, impData, options, position = 3)
+    .addPooledStdCoefficients(modelContainer[["coeffTable"]], model, impData, options)
   }
 
-  # TODO (KML): Check what we can do about the bootstrapping, partial cor, and collinearity tables
+  # TODO (KML): Check what we can do about the bootstrapping and collinearity tables
 
   # if (options$coefficientBootstrap && is.null(modelContainer[["bootstrapCoeffTable"]]))
   #   jaspRegression:::.linregCreateBootstrapCoefficientsTable(modelContainer, model, dataset, options, position = 4)
 
-  # if (options$partAndPartialCorrelation && is.null(modelContainer[["partialCorTable"]]))
-  #   jaspRegression:::.linregCreatePartialCorrelationsTable(modelContainer, model, dataset, options, position = 6)
+  if (options$equationTable && is.null(modelContainer[["equationTable"]])) {
+    jaspRegression:::.linregCreateEquationTable(modelContainer, model, impData[[1]], options, position = 4)
+  }
+
+  if (options$partAndPartialCorrelation && is.null(modelContainer[["partialCorTable"]])) {
+    jaspRegression:::.linregCreatePartialCorrelationsTable(
+      modelContainer,
+      model,
+      impData,
+      options,
+      position = 5,
+      lmFunction = lmFunction
+    )
+  }
 
   if (options$covarianceMatrix && is.null(modelContainer[["coeffCovMatrixTable"]])) {
-    jaspRegression:::.linregCreateCoefficientsCovarianceMatrixTable(modelContainer, model, options, position = 4)
+    jaspRegression:::.linregCreateCoefficientsCovarianceMatrixTable(modelContainer, model, options, position = 6)
   }
 
   # if (options$collinearityDiagnostic && is.null(modelContainer[["collinearityTable"]]))
   #   jaspRegression:::.linregCreateCollinearityDiagnosticsTable(modelContainer, model, options, position = 8)
+
+  if (options$descriptives && is.null(modelContainer[["descriptivesTable"]])) {
+    jaspRegression:::.linregCreateDescriptivesTable(modelContainer, impData[[1]], options, position = 7)
+    .updateDescriptivesTable(modelContainer[["descriptivesTable"]], impData, options)
+  }
 }
 
-## Execute .runRegression() within the 'jaspRegression' namespace:
-# environment(.runRegression) <- asNamespace("jaspRegression")
-
-### ------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .pooledRSquaredChange <- function(fit1, fit0 = NULL) {
   if (is.null(fit0)) {
     out <- list(
       R2c = NA,
-      Fc  = NA,
+      Fc = NA,
       df1 = 0,
       df2 = fit1$df.residual,
-      p   = NA
+      p = NA
     )
   } else {
     fOut <- fit1$fFun(fit1 = fit1$fits, fit0 = fit0$fits)
 
     out <- list(
       R2c = fit1$pooled$r2[1, "est"] - fit0$pooled$r2[1, "est"],
-      Fc  = fOut$result[[1]],
+      Fc = fOut$result[[1]],
       df1 = fOut$result[[2]],
       df2 = fOut$result[[3]],
-      p   = fOut$result[[4]]
+      p = fOut$result[[4]]
     )
   }
   out
 }
 
-# environment(.pooledRSquaredChange) <- asNamespace("jaspRegression")
+### --------------------------------------------------------------------------------------------------------------------
 
-### ------------------------------------------------------------------------------------------------------------------###
+.addPooledStdCoefficients <- function(coefficientsTable, model, dataset, options) {
+  coefTab <- coefficientsTable$toRObject()
+
+  for (mod in model) {
+    numPreds <- setdiff(mod$predictors, options$factors)
+    if (length(numPreds) == 0) {
+      next
+    }
+
+    stdBeta <- .pooledStdBetas(mod, dataset, options)
+    modRows <- coefTab$model == mod$title
+
+    for (x in names(stdBeta)) {
+      coefRows <- decodeColNames(x) == coefTab$name
+      coefTab[modRows & coefRows, "standCoeff"] <- stdBeta[x]
+    }
+  }
+  coefficientsTable$setData(coefTab)
+}
+
+### --------------------------------------------------------------------------------------------------------------------
+
+.pooledStdBetas <- function(model, data, options) {
+  numVars <- setdiff(c(options$dependent, model$predictors), options$factors)
+  pooledSd <- sapply(data, function(dat, v) dat[v] |> sapply(var), v = numVars) |>
+    rowMeans() |>
+    sqrt()
+
+  sdX <- pooledSd[-1]
+  sdY <- pooledSd[1]
+
+  beta <- coef(model$fit)[names(sdX)]
+  beta * sdX / sdY
+}
+
+### --------------------------------------------------------------------------------------------------------------------
+
+.updateDescriptivesTable <- function(descriptivesTable, dataset, options) {
+  variables <- c(options$dependent, unlist(options$covariates))
+  variables <- variables[variables != ""]
+
+  if (length(variables) > 0) {
+    descriptivesTable$setData(NULL)
+    descriptivesTable$addRows(.pooledDescriptives(variables, dataset))
+  }
+}
+
+### --------------------------------------------------------------------------------------------------------------------
+
+.pooledDescriptives <- function(variables, dataset) {
+  descriptives <- vector("list", length(variables))
+
+  for (i in seq_along(variables)) {
+    descriptives[[i]] <- list()
+
+    variable <- variables[[i]]
+    data <- lapply(dataset, function(x, y) x[[y]], y = variable)
+
+    n <- length(data[[1]])
+    v <- sapply(data, var) |> mean()
+    b <- sapply(data, mean) |> var()
+
+    descriptives[[i]][["var"]] <- variable
+    descriptives[[i]][["N"]] <- n
+    descriptives[[i]][["mean"]] <- mean(unlist(data))
+    descriptives[[i]][["SD"]] <- sqrt(v)
+    descriptives[[i]][["SE"]] <- sqrt((v / n) + b + (b / length(data)))
+  }
+  descriptives
+}
+
+### --------------------------------------------------------------------------------------------------------------------
 
 .checkRegressionValidVars <- function(options, jaspResults) {
   regvars <- c(options$dependent, options$covariates, options$factors)
   impvars <- colnames(jaspResults[["MiceMids"]]$object$data)
-  if(any(!regvars %in% impvars)) {
+  if (any(!regvars %in% impvars)) {
     notimputed <- regvars[which(!regvars %in% impvars)]
     stop(
-      "The variables ", 
-      paste0(jaspBase::decodeColNames(notimputed), collapse = ", ", 
-      " are not included in the imputation object. If you really don't want to include these variables in the imputation, exclude them through the imputation model specification."),
+      "The variables ",
+      paste0(
+        jaspBase::decodeColNames(notimputed),
+        collapse = ", ",
+        " are not included in the imputation object. If you really don't want to include these variables in the imputation, exclude them through the imputation model specification."
+      ),
       call. = FALSE
     )
   }

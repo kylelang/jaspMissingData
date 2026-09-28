@@ -15,48 +15,54 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-###------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
-.readyForMi <- function(options) {
-  with(options,
-    length(imputationTargets) > 0 &&
-    !is.null(nImps) && nImps >= 1 &&
-    !is.null(nIters) && nIters >= 1 &&
-    !is.null(seed)
+.errorHandling <- function(dataset, options) {
+  ## First, check for constant variance, since we only want to target numeric variables
+  numericVars <- names(dataset)[sapply(dataset, is.numeric)]
+  .hasErrors(
+    dataset,
+    "run",
+    type = 'variance',
+    variance.target = intersect(options$imputationTargets, numericVars),
+    exitAnalysisIfErrors = TRUE
+  )
+
+  ## Now, check for all other possible issues with the imputation targets
+  .hasErrors(
+    dataset,
+    "run",
+    type = c('infinity', 'factorLevels', 'observations', 'duplicateColumns'),
+    all.target = options$imputationTargets,
+    observations.amount = '< 2',
+    factorLevels.amount = '< 2',
+    exitAnalysisIfErrors = TRUE
   )
 }
 
-###------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
+
+.readyForMi <- function(options) {
+  with(
+    options,
+    length(imputationTargets) > 0 &&
+      !is.null(nImps) &&
+      nImps >= 1 &&
+      !is.null(nIters) &&
+      nIters >= 1 &&
+      !is.null(seed)
+  )
+}
+
+### --------------------------------------------------------------------------------------------------------------------
 
 .readyForLinReg <- function(options, miceMids) {
   inherits(miceMids$object, "mids") && # We can't do an analysis before imputing
-  options$dependent != "" &&
-  (length(unlist(options$modelTerms)) > 0 || options$interceptTerm)
+    options$dependent != "" &&
+    (length(unlist(options$modelTerms)) > 0 || options$interceptTerm)
 }
 
-###------------------------------------------------------------------------------------------------------------------###
-
-# .readData <- function(dataset, options) dataset[options$imputationVariables]
-#   vars <- unlist(options$variables)
-#   # Read in the dataset using the built-in functions
-#   if (!is.null(options$groupVar) && options$groupVar != "")
-#     .readDataSetToEnd(columns = vars, columns.as.factor = options$groupVar)
-#   else
-#     .readDataSetToEnd(columns = vars)
-# }
-
-###------------------------------------------------------------------------------------------------------------------###
-
-.errorHandling <- function(dataset, options)
-  .hasErrors(dataset,
-             "run",
-             type = c('observations', 'variance', 'infinity'),
-             all.target = options$imputationTargets,
-             observations.amount = '< 2',
-             exitAnalysisIfErrors = TRUE)
-
-
-###------------------------------------------------------------------------------------------------------------------###
+### --------------------------------------------------------------------------------------------------------------------
 
 .imputationDependencies <- function() {
   c(
@@ -67,15 +73,17 @@
     "visitSequence",
     "nImps",
     "nIters",
-    "quickpred", 
-    "quickpredMincor", 
-    "quickpredMinpuc", 
-    "quickpredMethod", 
-    "quickpredIncludes", 
+    "quickpred",
+    "quickpredMincor",
+    "quickpredMinpuc",
+    "quickpredMethod",
+    "quickpredIncludes",
     "quickpredExcludes",
     "seed"
   )
 }
+
+### --------------------------------------------------------------------------------------------------------------------
 
 .analysisDependencies <- function(options) {
   deps <- NULL
@@ -101,3 +109,8 @@
   }
   deps
 }
+
+### --------------------------------------------------------------------------------------------------------------------
+
+## Convert a formula object to a printable character string
+# f2Char <- function(f) enquote(f)[2] |> as.character()
