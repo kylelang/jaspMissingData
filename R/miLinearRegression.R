@@ -134,32 +134,23 @@
 ### --------------------------------------------------------------------------------------------------------------------
 
 .pooledStdBetas <- function(model) {
-  sdY <- sapply(model$fit$fits$analyses, function(x) var(x$model[[1]])) |>
+  miFits <- model$fit$fits$analyses
+
+  sdY <- sapply(miFits, function(x) var(x$model[[1]])) |>
     mean() |>
     sqrt()
 
-  sdX <- sapply(model$fit$fits$analyses, function(x) model.matrix(x)[, -1] |> apply(2, var)) |>
+  sdX <- sapply(
+    miFits,
+    function(x) model.matrix(x)[, -1, drop = FALSE] |> apply(2, var)
+  ) |>
+    matrix(ncol = length(miFits)) |>
     rowMeans() |>
     sqrt()
 
   beta <- coef(model$fit)[names(sdX)]
   beta * sdX / sdY
 }
-
-### --------------------------------------------------------------------------------------------------------------------
-
-# .pooledStdBetas2 <- function(model, data, options) {
-#   numVars <- setdiff(c(options$dependent, model$predictors), options$factors)
-#   pooledSd <- sapply(data, function(dat, v) dat[v] |> sapply(var), v = numVars) |>
-#     rowMeans() |>
-#     sqrt()
-#
-#   sdX <- pooledSd[-1]
-#   sdY <- pooledSd[1]
-#
-#   beta <- coef(model$fit)[names(sdX)]
-#   beta * sdX / sdY
-# }
 
 ### --------------------------------------------------------------------------------------------------------------------
 
