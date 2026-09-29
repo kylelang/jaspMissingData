@@ -33,12 +33,12 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
   .initMiceMids(jaspResults)
 
-  if (is.null(jaspResults[["MiceMids"]]$object) & !.readyForMi(options)) {
+  if (is.null(jaspResults[["MiceMids"]]$object) && !.readyForMi(options)) {
     # Regular imputation part takes precedence over loading imputation models
     jaspResults[["MiceMids"]][["object"]] <- .loadImputedData(options)
   }
 
-  if (.readyForMi(options) | !is.null(jaspResults[["MiceMids"]][["object"]])) {
+  if (.readyForMi(options) || !is.null(jaspResults[["MiceMids"]][["object"]])) {
     errors <- .errorHandling(dataset, options)
 
     .initMiceMids(jaspResults)
@@ -55,8 +55,9 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
     if (options$tracePlot && is.null(jaspResults[["ConvergencePlots"]][["TracePlot"]])) {
       .createTracePlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]])
     }
+
     if (options$densityPlot && is.null(jaspResults[["ConvergencePlots"]][["DensityPlots"]])) {
-      .createDensityPlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]], options)
+      .createDensityPlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]])
     }
 
     if (options$saveImps && options[["savePath"]] != "") {
@@ -112,9 +113,10 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   }
 
   convergencePlots <- createJaspContainer(title = "Convergence Plots")
-  convergencePlots$dependOn(
-    options = c(.imputationDependencies(), "tracePlot", "densityPlot")
-  )
+  convergencePlots$dependOn(options = .imputationDependencies())
+  # convergencePlots$dependOn(
+  #   options = c(.imputationDependencies(), "tracePlot", "densityPlot")
+  # )
 
   jaspResults[["ConvergencePlots"]] <- convergencePlots
 }
@@ -380,23 +382,41 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-.createTracePlot <- function(convergencePlots, miceMids) {
-  tracePlot <- createJaspPlot(title = "Trace Plot", height = 320, width = 480)
+# library(mice)
+# mids <- mice(boys)
+#
+# v <- "hgt"
+# p <- ggmice::plot_trace(mids, vrb = !!v)
 
-  convergencePlots[["TracePlot"]] <- tracePlot
+.createTracePlot <- function(convergencePlots, miceMids) {
+  tracePlots <- jaspBase::createJaspContainer("Trace Plots")
+  tracePlots$dependOn(options = "tracePlot")
+
+  convergencePlots[["TracePlots"]] <- tracePlots
 
   nonNull <- !sapply(miceMids$object$imp, is.null)
   imputedVariables <- (sapply(miceMids$object$imp[nonNull], nrow) > 0) |>
     which() |>
     names()
 
-  tracePlot$plotObject <- miceMids$object |> ggmice::plot_trace(vrb = !!imputedVariables)
+  for (v in imputedVariables) {
+    tracePlot <- createJaspPlot(title = v, height = 320, width = 480)
+
+    ## Bind the trace plot for variable 'v' to the 'tracePlots' container in jaspResults
+    convergencePlots[["TracePlots"]][[v]] <- tracePlot
+
+    ## Populate the plot object
+    tracePlot$plotObject <- miceMids$object |> ggmice::plot_trace(vrb = !!v)
+  }
 }
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-.createDensityPlot <- function(convergencePlots, miceMids, options) {
-  convergencePlots[["DensityPlots"]] <- jaspBase::createJaspContainer("Density Plots")
+.createDensityPlot <- function(convergencePlots, miceMids) {
+  densityPlots <- jaspBase::createJaspContainer("Density Plots")
+  densityPlots$dependOn(options = "densityPlot")
+
+  convergencePlots[["DensityPlots"]] <- densityPlots
 
   nonNull <- !sapply(miceMids$object$imp, is.null)
   imputedVariables <- (sapply(miceMids$object$imp[nonNull], nrow) > 0) |>
