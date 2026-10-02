@@ -377,12 +377,6 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-# library(mice)
-# mids <- mice(boys)
-#
-# v <- "hgt"
-# p <- ggmice::plot_trace(mids, vrb = !!v)
-
 .createTracePlot <- function(convergencePlots, miceMids) {
   if (!is.null(convergencePlots[["TracePlots"]])) {
     return()

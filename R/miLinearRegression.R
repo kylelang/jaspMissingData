@@ -191,7 +191,6 @@
 ### --------------------------------------------------------------------------------------------------------------------
 
 .checkRegressionValidVars <- function(options, jaspResults) {
-  # browser() ############################################################################################################
   regVars <- with(options, c(dependent, covariates, factors)) |> unlist()
   impVars <- colnames(jaspResults[["MiceMids"]]$object$data)
   notImputed <- setdiff(regVars, impVars)
