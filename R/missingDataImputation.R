@@ -28,52 +28,47 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
   # Set title
   jaspResults$title <- "Multiple Imputation with MICE"
 
-  # Init options: add variables to options to be used in the remainder of the analysis
+  # Init options: Add variables to options to be used in the remainder of the analysis
   options <- .processImputationOptions(options)
 
+  # Initialize some containers to hold the different results
   .initMiceMids(jaspResults)
+  .initConvergencePlots(jaspResults)
 
-  if (is.null(jaspResults[["MiceMids"]]$object) && !.readyForMi(options)) {
-    # Regular imputation part takes precedence over loading imputation models
-    jaspResults[["MiceMids"]][["object"]] <- .loadImputedData(options)
-  }
-
-  if (.readyForMi(options) || !is.null(jaspResults[["MiceMids"]][["object"]])) {
-    errors <- .errorHandling(dataset, options)
-
-    .initMiceMids(jaspResults)
-
-    if (is.null(jaspResults[["MiceMids"]]$object)) {
+  if (is.null(jaspResults[["MiceMids"]]$object)) {
+    if (.readyToLoad(options)) {
+      # Try to load existing imputed datasets
+      jaspResults[["MiceMids"]][["object"]] <- .loadImputedData(options)
+    } else if (.readyForMi(options)) {
+      # Otherwise, create new imputations
+      errors <- .errorHandling(dataset, options)
       .imputeMissingData(jaspResults[["MiceMids"]], dataset[options$imputationTargets], options)
     }
+  }
 
-    .loggedEventsToTable(jaspResults, options)
+  .loggedEventsToTable(jaspResults, options)
 
-    ## Initialize containers to hold the convergence plots and analysis results:
-    .initConvergencePlots(jaspResults)
+  if (options$tracePlot) {
+    .createTracePlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]])
+  }
 
-    if (options$tracePlot && is.null(jaspResults[["ConvergencePlots"]][["TracePlot"]])) {
-      .createTracePlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]])
-    }
+  if (options$densityPlot) {
+    .createDensityPlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]])
+  }
 
-    if (options$densityPlot && is.null(jaspResults[["ConvergencePlots"]][["DensityPlots"]])) {
-      .createDensityPlot(jaspResults[["ConvergencePlots"]], jaspResults[["MiceMids"]])
-    }
+  if (options$rHats) {
+    .createRHatsTable(jaspResults, options)
+  }
 
-    if (options$saveImps && options[["savePath"]] != "") {
-      .saveImputedData(jaspResults, dataset, options)
-    }
+  if (options$saveImps && options[["savePath"]] != "") {
+    .saveImputedData(jaspResults, dataset, options)
+  }
 
-    if (options$rHats) {
-      .createRHatsTable(jaspResults, options)
-    }
-
-    if (.readyForLinReg(options, jaspResults[["MiceMids"]])) {
-      .checkRegressionValidVars(options, jaspResults)
-      pooledLm <- makePooledLm(pool = TRUE, poolingParams = with(options, list(fStat = fStat, llEst = llEst)))
-      .initModelContainer(jaspResults, options)
-      .runRegression(jaspResults, options, ready = TRUE, lmFunction = pooledLm)
-    }
+  if (.readyForLinReg(options, jaspResults[["MiceMids"]])) {
+    .checkRegressionValidVars(options, jaspResults)
+    pooledLm <- makePooledLm(pool = TRUE, poolingParams = with(options, list(fStat = fStat, llEst = llEst)))
+    .initModelContainer(jaspResults, options)
+    .runRegression(jaspResults, options, ready = TRUE, lmFunction = pooledLm)
   }
 
   return()
@@ -389,6 +384,10 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 # p <- ggmice::plot_trace(mids, vrb = !!v)
 
 .createTracePlot <- function(convergencePlots, miceMids) {
+  if (!is.null(convergencePlots[["TracePlots"]])) {
+    return()
+  }
+
   tracePlots <- jaspBase::createJaspContainer("Trace Plots")
   tracePlots$dependOn(options = "tracePlot")
 
@@ -413,6 +412,10 @@ MissingDataImputation <- function(jaspResults, dataset, options) {
 ### --------------------------------------------------------------------------------------------------------------------
 
 .createDensityPlot <- function(convergencePlots, miceMids) {
+  if (!is.null(convergencePlots[["DensityPlots"]])) {
+    return()
+  }
+
   densityPlots <- jaspBase::createJaspContainer("Density Plots")
   densityPlots$dependOn(options = "densityPlot")
 

@@ -191,17 +191,15 @@
 ### --------------------------------------------------------------------------------------------------------------------
 
 .checkRegressionValidVars <- function(options, jaspResults) {
-  regvars <- c(options$dependent, options$covariates, options$factors)
-  impvars <- colnames(jaspResults[["MiceMids"]]$object$data)
-  if (any(!regvars %in% impvars)) {
-    notimputed <- regvars[which(!regvars %in% impvars)]
+  # browser() ############################################################################################################
+  regVars <- with(options, c(dependent, covariates, factors)) |> unlist()
+  impVars <- colnames(jaspResults[["MiceMids"]]$object$data)
+  notImputed <- setdiff(regVars, impVars)
+  if (length(notImputed) > 0) {
     stop(
-      "The variables ",
-      paste0(
-        jaspBase::decodeColNames(notimputed),
-        collapse = ", ",
-        " are not included in the imputation object. If you really don't want to include these variables in the imputation, exclude them through the imputation model specification."
-      ),
+      "The variables {",
+      paste0(jaspBase::decodeColNames(notImputed), collapse = ", "),
+      "} are not included in the imputation object. If you really don't want to include these variables in the imputation, exclude them through the imputation model specification.",
       call. = FALSE
     )
   }
