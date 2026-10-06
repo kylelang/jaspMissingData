@@ -1,3 +1,5 @@
+skip("These tests are redundant with the 'large model' coefficients tests.")
+
 boys <- readRDS(test_path("fixtures", "boys.rds"))
 miceMids <- readRDS(test_path("fixtures", "mice_mids.rds"))
 options <- readRDS(test_path("fixtures", "lin_reg_options.rds"))

@@ -48,7 +48,7 @@
     ## We can safely pass 'impData[[1]]' below because the dataset is only used to compute the standardized coefficients
     ## and we're just going to overwrite those on the next line.
     jaspRegression:::.linregCreateCoefficientsTable(modelContainer, model, impData[[1]], options, position = 3)
-    .addPooledStdCoefficients(modelContainer[["coeffTable"]], model, impData, options)
+    .addPooledStdCoefficients(modelContainer[["coeffTable"]], model, options)
   }
 
   # TODO (KML): Check what we can do about the bootstrapping and collinearity tables
@@ -111,7 +111,7 @@
 
 ### --------------------------------------------------------------------------------------------------------------------
 
-.addPooledStdCoefficients <- function(coefficientsTable, model, dataset, options) {
+.addPooledStdCoefficients <- function(coefficientsTable, model, options) {
   coefTab <- coefficientsTable$toRObject()
 
   for (mod in model) {
@@ -144,7 +144,7 @@
     miFits,
     function(x) model.matrix(x)[, -1, drop = FALSE] |> apply(2, var)
   ) |>
-    matrix(ncol = length(miFits)) |>
+    as.matrix(ncol = length(miFits)) |>
     rowMeans() |>
     sqrt()
 
